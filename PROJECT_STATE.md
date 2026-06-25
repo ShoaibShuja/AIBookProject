@@ -6,7 +6,7 @@ This repository is a customized local clone of the public Bookified project, bei
 
 The application lets authenticated users upload PDF books, extract and store searchable text segments, browse a library, search books by title or author, open a protected book conversation page, and start a real-time Vapi voice session that can search stored book text through a server API tool.
 
-This file documents the current codebase before further branding, academic documentation, and presentation customization.
+This file documents the current codebase after the first KitabHoshmand branding pass and before deeper feature or dashboard changes.
 
 ## Tech Stack
 
@@ -93,7 +93,7 @@ This file documents the current codebase before further branding, academic docum
   - Requires Clerk auth before generating a client upload token.
   - Allows PDF and image upload content types.
   - Applies the 50 MB `MAX_FILE_SIZE` limit.
-  - Current code reads `process.env.bookified_READ_WRITE_TOKEN`.
+  - Current code reads `process.env.BLOB_READ_WRITE_TOKEN` with a backwards-compatible fallback to `process.env.bookified_READ_WRITE_TOKEN`.
 
 - `GET /api/vapi/search-book`
   - Health check returning `{ status: "ok" }`.
@@ -234,58 +234,62 @@ Current `.env.local` contains these keys, values redacted:
 - `GOOGLE_GEMINI_API_KEY`
 - `ELEVENLABS_API_KEY`
 
-Known mismatch: the upload API currently reads `bookified_READ_WRITE_TOKEN`, while local env and README use `BLOB_READ_WRITE_TOKEN`.
+The upload API now prefers `BLOB_READ_WRITE_TOKEN` and keeps `bookified_READ_WRITE_TOKEN` as a compatibility fallback.
 
 ## Known Risks and Missing Setup Items
 
-- `npm run lint` currently fails because `database/mongoose.ts` uses `let cached` where ESLint expects `const cached`.
-- `npm run lint` also reports unused imports/variables and React Hook dependency warnings.
-- `npx tsc --noEmit` fails because Clerk `has({ product })` is not accepted by the installed type definitions.
-- `npx tsc --noEmit` fails because the pdfjs render call is missing the `canvas` property required by current types.
-- `next.config.ts` has `typescript.ignoreBuildErrors: true`, so production build skips type validation.
-- `README.md` documents `BLOB_READ_WRITE_TOKEN` but the code reads `bookified_READ_WRITE_TOKEN`.
-- `README.md` omits `NEXT_PUBLIC_ASSISTANT_ID`, which is required by `ASSISTANT_ID`.
+- `next.config.ts` has `typescript.ignoreBuildErrors: true`, so production build skips type validation. Direct `npx tsc --noEmit` currently passes and should be kept in the final validation workflow.
+- `README.md` documents `BLOB_READ_WRITE_TOKEN` and `NEXT_PUBLIC_ASSISTANT_ID`.
 - `GOOGLE_GEMINI_API_KEY` is documented, but the current search implementation uses MongoDB text search and regex fallback, not Gemini embeddings.
 - `VAPI_SERVER_SECRET` is present but not currently used by the inspected API route.
 - ElevenLabs API key is documented, but voice calls are configured through Vapi client voice settings.
 - `next.config.ts` allows remote images from a specific Vercel Blob host, which may need updating for a different Blob project.
-- Some original tutorial/marketing assets and links remain in `README.md` and `public/readme`.
+- Legacy original tutorial/marketing images remain in `public/readme` but are no longer referenced by the rewritten README.
 - Authentication and subscriptions depend on correct Clerk dashboard configuration.
 - Vapi assistant tool configuration must match `/api/vapi/search-book` and the `searchBook` tool schema.
 
-## Branding and Customization Targets
+## Completed Branding Changes
 
-- `package.json` and `package-lock.json`: package name is still `bookified`.
-- `README.md`: contains Bookified, JavaScript Mastery, JSM links, tutorial copy, original clone commands, badges, and promotional assets.
-- `app/layout.tsx`: metadata title is `Bookified`; description references voice book conversations.
-- `components/Navbar.tsx`: visible brand is `Bookified`; logo alt text is `Bookfied`; nav labels are `Library`, `Add New`, and `Pricing`.
-- `components/HeroSection.tsx`: visible copy includes `Your Library`, generic book conversation text, and upload/process/chat steps.
-- `app/(root)/page.tsx`: section heading is `Recent Books`.
-- `app/(root)/books/new/page.tsx`: copy includes `Add a New Book` and upload subtitle.
-- `app/(root)/subscriptions/page.tsx`: copy includes plan upgrade messaging.
-- `components/UploadForm.tsx`: placeholders include sample book/author text and submit button `Begin Synthesis`.
-- `components/Search.tsx`: placeholder is `Search books by title or author`.
-- `components/Transcript.tsx`: empty state copy is generic voice-chat guidance.
-- `lib/constants.ts`: sample books, voice labels/descriptions, Vapi dashboard notes, and brand colors should be reviewed.
-- `public/assets/*`: logo and app imagery should be replaced or documented as customized assets.
-- `public/readme/*`: original README/tutorial images should be replaced for final monograph presentation.
-- `app/api/upload/route.ts`: env variable name contains old branding.
+- `package.json` and `package-lock.json`: package name changed from `bookified` to `kitabhoshmand`.
+- `README.md`: rewritten for KitabHoshmand with university monograph positioning, setup instructions, routes, validation commands, and attribution to the original repository.
+- `app/layout.tsx`: metadata title, description, and icon reference now use KitabHoshmand.
+- `components/Navbar.tsx`: visible brand changed to `KitabHoshmand`; logo alt text fixed; nav labels changed to `Library`, `Upload`, and `Plans`.
+- `components/HeroSection.tsx`: hero copy now presents KitabHoshmand as an academic smart book companion.
+- `app/(root)/page.tsx`: section heading changed to `Smart Book Library`.
+- `app/(root)/books/new/page.tsx`: upload page copy updated for voice-native smart study.
+- `app/(root)/subscriptions/page.tsx`: plan copy updated for KitabHoshmand study limits.
+- `components/UploadForm.tsx`: sample placeholders and submit button updated for academic book examples.
+- `components/Search.tsx`: search placeholder updated to `Search your smart library`.
+- `components/Transcript.tsx`: empty transcript state updated for study conversation.
+- `components/LoadingOverlay.tsx`: processing copy updated to KitabHoshmand smart-book language.
+- `lib/constants.ts`: sample demo book and comments adjusted toward academic/study positioning.
+- `public/brand/kitabhoshmand-logo-mark.svg`: temporary scalable placeholder logo mark added.
+- `public/brand/kitabhoshmand-logo.svg`: temporary horizontal placeholder logo added.
+- `public/brand/README.md`: brand asset usage and replacement instructions added.
+- `app/api/upload/route.ts`: upload token env now prefers `BLOB_READ_WRITE_TOKEN` with old-name fallback.
+
+## Remaining Branding and Asset Tasks
+
+- Replace temporary SVG placeholder logo files with the final GPT Image 2 logo assets when available.
+- Decide whether to remove or archive legacy `public/readme/*` tutorial assets after final presentation materials are created.
+- Review `public/assets/*` imagery and replace any original visual style assets that do not match the final KitabHoshmand brand.
+- App favicon is safely referenced through metadata as `public/brand/kitabhoshmand-logo-mark.svg`; the existing `app/favicon.ico` remains in place for Next.js convention compatibility.
 
 ## Check Results
 
+- `npm run lint`: passes.
 - `npm run build`: passes.
-- `npm run lint`: fails with 1 error and 13 warnings.
-- `npx tsc --noEmit`: fails with 3 type errors.
-- No configured `typecheck` script exists in `package.json`.
+- `npx tsc --noEmit`: passes.
+- No configured `typecheck` script exists in `package.json`; direct TypeScript validation was run manually.
 
 ## Monograph-Specific Tasks Still Remaining
 
-- Replace Bookified branding with KitabHoshmand (کتاب هوشمند) in app UI, metadata, README, package metadata, and assets.
+- Insert the final GPT Image 2 logo assets into `public/brand` when available.
 - Write original project background and implementation explanation in the monograph.
 - Add screenshots for homepage/library, upload form, subscription page, book conversation page, transcript, and error/limit states.
 - Create diagrams for architecture, upload pipeline, voice assistant sequence, database ERD, and auth/subscription flow.
 - Add implementation notes explaining PDF parsing, chunking, MongoDB search, Vapi tool calls, and subscription enforcement.
-- Fix lint and type errors before final academic submission.
+- Keep lint, build, and direct TypeScript checks passing before final academic submission.
 - Confirm all environment variables and third-party dashboards are configured.
 - Add setup instructions customized for the university project instead of tutorial links.
 - Add testing evidence: build logs, lint/typecheck status, manual test checklist, and screenshots.

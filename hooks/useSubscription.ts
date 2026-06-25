@@ -20,9 +20,11 @@ export const useSubscription = () => {
     let plan: PlanType = PLANS.FREE;
 
     // 1. First Check: Clerk's `has` helper from useAuth
-    if (has?.({ product: 'pro' }) || has?.({ plan: 'pro' })) {
+    const hasBillingAccess = has as unknown as ((params: { plan?: string; product?: string }) => boolean) | undefined;
+
+    if (hasBillingAccess?.({ product: 'pro' }) || hasBillingAccess?.({ plan: 'pro' })) {
         plan = PLANS.PRO;
-    } else if (has?.({ product: 'standard' }) || has?.({ plan: 'standard' })) {
+    } else if (hasBillingAccess?.({ product: 'standard' }) || hasBillingAccess?.({ plan: 'standard' })) {
         plan = PLANS.STANDARD;
     } 
     // 2. Second Check: Fallback to user public metadata if `has` fails (caching issue)

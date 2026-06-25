@@ -9,14 +9,14 @@ const HeroSection = () => {
                 <div className="library-hero-content">
                     {/* Left Part */}
                     <div className="library-hero-text">
-                        <h1 className="library-hero-title text-4xl font-serif font-bold">Your Library</h1>
+                        <h1 className="library-hero-title text-4xl font-serif font-bold">KitabHoshmand Library</h1>
                         <p className="library-hero-description">
-                            Convert your books into interactive AI conversations. <br className="hidden md:block" />
-                            Listen, learn, and discuss your favorite reads.
+                            Turn academic PDFs into searchable, voice-native study companions. <br className="hidden md:block" />
+                            Upload, ask, listen, and review book knowledge with AI.
                         </p>
                         <Link href="/books/new" className="library-cta-primary mt-4 flex items-center justify-center">
                             <span className="text-3xl font-light mb-1 mr-2">+</span>
-                            <span className="text-[#212a3b]">Add new book</span>
+                            <span className="text-[#212a3b]">Upload book</span>
                         </Link>
                     </div>
 
@@ -24,7 +24,7 @@ const HeroSection = () => {
                     <div className="library-hero-illustration-desktop">
                         <Image
                             src="/assets/hero-illustration.png"
-                            alt="Vintage books and a globe"
+                            alt="Academic books for KitabHoshmand"
                             width={400}
                             height={400}
                             className="object-contain"
@@ -35,7 +35,7 @@ const HeroSection = () => {
                     <div className="library-hero-illustration">
                         <Image
                             src="/assets/hero-illustration.png"
-                            alt="Vintage books and a globe"
+                            alt="Academic books for KitabHoshmand"
                             width={300}
                             height={300}
                             className="object-contain"
@@ -49,21 +49,21 @@ const HeroSection = () => {
                                 <div className="w-10 h-10 min-w-10 min-h-10 rounded-full border border-gray-300 flex items-center justify-center font-medium text-lg">1</div>
                                 <div className="flex flex-col">
                                     <h3 className="library-step-title text-lg font-bold">Upload PDF</h3>
-                                    <p className="library-step-description text-gray-500">Add your book file</p>
+                                    <p className="library-step-description text-gray-500">Add an academic PDF</p>
                                 </div>
                             </li>
                             <li className="library-step-item">
                                 <div className="w-10 h-10 min-w-10 min-h-10 rounded-full border border-gray-300 flex items-center justify-center font-medium text-lg">2</div>
                                 <div className="flex flex-col">
-                                    <h3 className="library-step-title text-lg font-bold">AI Processing</h3>
-                                    <p className="library-step-description text-gray-500">We analyze the content</p>
+                                    <h3 className="library-step-title text-lg font-bold">Smart Indexing</h3>
+                                    <p className="library-step-description text-gray-500">Extract searchable text</p>
                                 </div>
                             </li>
                             <li className="library-step-item">
                                 <div className="w-10 h-10 min-w-10 min-h-10 rounded-full border border-gray-300 flex items-center justify-center font-medium text-lg">3</div>
                                 <div className="flex flex-col">
-                                    <h3 className="library-step-title text-lg font-bold">Voice Chat</h3>
-                                    <p className="library-step-description text-gray-500">Discuss with AI</p>
+                                    <h3 className="library-step-title text-lg font-bold">Voice Study</h3>
+                                    <p className="library-step-description text-gray-500">Discuss the book with AI</p>
                                 </div>
                             </li>
                         </ul>
