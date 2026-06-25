@@ -6,7 +6,6 @@ import {escapeRegex, generateSlug, serializeData} from "@/lib/utils";
 import Book from "@/database/models/book.model";
 import BookSegment from "@/database/models/book-segment.model";
 import mongoose from "mongoose";
-import {getUserPlan} from "@/lib/subscription.server";
 
 export const getAllBooks = async (search?: string) => {
     try {

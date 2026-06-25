@@ -38,7 +38,7 @@ const Search = () => {
             </div>
             <Input
                 type="text"
-                placeholder="Search books by title or author"
+                placeholder="Search your smart library"
                 className="library-search-input border-none shadow-none focus-visible:ring-0"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}

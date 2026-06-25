@@ -20,8 +20,11 @@ const monaSans = Mona_Sans({
 })
 
 export const metadata: Metadata = {
-  title: "Bookified",
-  description: "Transform your books into interactive AI conversations. Upload PDFs, and chat with your books using voice.",
+  title: "KitabHoshmand | Smart Book Companion",
+  description: "KitabHoshmand is an AI-powered smart book companion for uploading PDFs, exploring book knowledge, and discussing content through voice.",
+  icons: {
+    icon: "/brand/kitabhoshmand-logo-mark.svg",
+  },
 };
 
 export default function RootLayout({

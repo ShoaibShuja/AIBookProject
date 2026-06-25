@@ -1,0 +1,13 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">KitabHoshmand Logo Mark</title>
+  <desc id="desc">A minimal open book with a neural spark for the KitabHoshmand smart book companion.</desc>
+  <rect width="128" height="128" rx="28" fill="#F8F4E9"/>
+  <path d="M24 39C39.6 37.4 51.8 41.2 64 50.3C76.2 41.2 88.4 37.4 104 39V91.6C88.7 90.1 76.3 93.3 64 102C51.7 93.3 39.3 90.1 24 91.6V39Z" fill="#102033"/>
+  <path d="M34 51.3C43.8 51.1 52.7 53.8 60.5 59.5V88.8C52.5 83.9 43.5 81.7 34 82.1V51.3Z" fill="#F8F4E9"/>
+  <path d="M94 51.3C84.2 51.1 75.3 53.8 67.5 59.5V88.8C75.5 83.9 84.5 81.7 94 82.1V51.3Z" fill="#F8F4E9"/>
+  <path d="M64 40V99" stroke="#D8A94A" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="64" cy="28" r="5" fill="#1C8C86"/>
+  <circle cx="50" cy="34" r="3.5" fill="#D8A94A"/>
+  <circle cx="78" cy="34" r="3.5" fill="#D8A94A"/>
+  <path d="M54 33L64 28L74 33" stroke="#1C8C86" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

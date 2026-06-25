@@ -2,7 +2,7 @@
 export const BRAND_COLOR = '#212a3b'; // Dark blue-gray
 export const BRAND_COLOR_HOVER = '#3d485e'; // Medium blue-gray
 
-// Sample books for the homepage (using Open Library covers)
+// Sample academic/library books for demos (using Open Library covers)
 export const sampleBooks = [
     {
         _id: '1',
@@ -30,10 +30,10 @@ export const sampleBooks = [
     },
     {
         _id: '4',
-        title: 'Rich Dad Poor Dad',
-        author: 'Robert Kiyosaki',
-        slug: 'rich-dad-poor-dad',
-        coverURL: 'https://covers.openlibrary.org/b/isbn/9781612680194-L.jpg',
+        title: 'Artificial Intelligence: A Modern Approach',
+        author: 'Stuart Russell & Peter Norvig',
+        slug: 'artificial-intelligence-a-modern-approach',
+        coverURL: 'https://covers.openlibrary.org/b/isbn/9780134610993-L.jpg',
         coverColor: '#f8f4e9',
     },
     {
@@ -92,11 +92,11 @@ export const ACCEPTED_PDF_TYPES = ['application/pdf'];
 export const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 export const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
-// Pre-configured VAPI assistant ID (hardcoded for this app)
+// Pre-configured Vapi assistant ID for KitabHoshmand
 export const ASSISTANT_ID = process.env.NEXT_PUBLIC_ASSISTANT_ID!;
 
 // 11Labs Voice IDs - Optimized for conversational AI
-// Voices selected for natural, engaging book conversations
+// Voices selected for natural, trustworthy study conversations
 export const voiceOptions = {
     // Male voices
     dave: { id: 'CYw3kZ02Hs0563khs1Fj', name: 'Dave', description: 'Young male, British-Essex, casual & conversational' },
@@ -166,5 +166,4 @@ export const CLERK_AUTH_APPEARANCE_OVERRIDE = {
     formFieldLabel: 'text-[#212a3b] font-medium text-lg',
     footerActionLink: 'text-[#212a3b] hover:text-[#3d485e] text-base font-medium',
 };
-
 
