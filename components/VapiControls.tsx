@@ -11,20 +11,16 @@ import {useRouter} from "next/navigation";
 import {useEffect} from "react";
 
 const VapiControls = ({ book }: { book: IBook }) => {
-    const { status, isActive, messages, currentMessage, currentUserMessage, duration, start, stop, clearError, limitError, isBillingError, maxDurationSeconds } = useVapi(book)
+    const { status, isActive, messages, currentMessage, currentUserMessage, duration, start, stop, clearError, limitError, maxDurationSeconds } = useVapi(book)
     const router = useRouter();
 
     useEffect(() => {
         if (limitError) {
             toast.error(limitError);
-            if (isBillingError) {
-                router.push("/subscriptions");
-            } else {
-                router.push("/");
-            }
+            router.push("/");
             clearError();
         }
-    }, [isBillingError, limitError, router, clearError]);
+    }, [limitError, router, clearError]);
 
     const formatDuration = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
@@ -52,7 +48,7 @@ const VapiControls = ({ book }: { book: IBook }) => {
                 <div className="vapi-header-card">
                     <div className="vapi-cover-wrapper">
                         <Image
-                            src={book.coverURL || "/images/book-placeholder.png"}
+                            src={book.coverURL || "/assets/book-cover.svg"}
                             alt={book.title}
                             width={120}
                             height={180}

@@ -6,13 +6,7 @@ const nextConfig: NextConfig = {
             bodySizeLimit: '100mb',
         }
     },
-    typescript: {
-        ignoreBuildErrors: true,
-    },
-    images: { remotePatterns: [
-            { protocol: 'https', hostname: 'covers.openlibrary.org' },
-            { protocol: 'https', hostname: 'lspfdyhgsrgsxcju.public.blob.vercel-storage.com' },
-        ]}
+    images: { remotePatterns: [{ protocol: 'https', hostname: '*.supabase.co' }] }
 };
 
 export default nextConfig;

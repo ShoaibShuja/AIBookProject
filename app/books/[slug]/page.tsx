@@ -1,21 +1,17 @@
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 import { getBookBySlug } from "@/lib/actions/book.actions";
 import VapiControls from "@/components/VapiControls";
+import { requireUser } from '@/lib/auth';
 
 export default async function BookDetailsPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { userId } = await auth();
-
-  if (!userId) {
-    redirect("/sign-in");
-  }
+  await requireUser();
 
   const { slug } = await params;
   const result = await getBookBySlug(slug);

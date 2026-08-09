@@ -1,4 +1,3 @@
-import { Document, Types } from 'mongoose';
 import { ReactNode } from 'react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { LucideIcon } from 'lucide-react';
@@ -9,26 +8,24 @@ import { UploadSchema } from '@/lib/zod';
 // DATABASE MODELS
 // ============================================
 
-export interface IBook extends Document {
-    _id: string;
-    clerkId: string;
+export interface IBook {
+    id: string;
     title: string;
     slug: string;
     author: string;
     persona?: string;
-    fileURL: string;
-    fileBlobKey: string;
-    coverURL: string;
-    coverBlobKey?: string;
+    pdfPath: string;
+    coverPath: string | null;
+    coverURL?: string | null;
     fileSize: number;
     totalSegments: number;
     createdAt: Date;
     updatedAt: Date;
 }
 
-export interface IBookSegment extends Document {
-    clerkId: string;
-    bookId: Types.ObjectId;
+export interface IBookSegment {
+    id: string;
+    bookId: string;
     content: string;
     segmentIndex: number;
     pageNumber?: number;
@@ -37,10 +34,10 @@ export interface IBookSegment extends Document {
     updatedAt: Date;
 }
 
-export interface IVoiceSession extends Document {
-    _id: string;
-    clerkId: string;
-    bookId: Types.ObjectId;
+export interface IVoiceSession {
+    id: string;
+    userId: string;
+    bookId: string;
     startedAt: Date;
     endedAt?: Date;
     durationSeconds: number;
@@ -56,15 +53,14 @@ export interface IVoiceSession extends Document {
 export type BookUploadFormValues = z.infer<typeof UploadSchema>;
 
 export interface CreateBook {
-    clerkId: string;
+    id: string;
     title: string;
     author: string;
     persona?: string;
-    fileURL: string;
-    fileBlobKey: string;
-    coverURL?: string;
-    coverBlobKey?: string;
+    pdfPath: string;
+    coverPath?: string;
     fileSize: number;
+    segments: TextSegment[];
 }
 
 export interface TextSegment {
@@ -77,7 +73,7 @@ export interface TextSegment {
 export interface BookCardProps {
     title: string;
     author: string;
-    coverURL: string;
+    coverURL?: string | null;
     slug: string;
 }
 
@@ -116,23 +112,11 @@ export interface FileUploadFieldProps<T extends FieldValues> {
     placeholder: string;
     hint: string;
 }
-import {PlanType} from "@/lib/subscription-constants";
-
-export interface SessionCheckResult {
-    allowed: boolean;
-    currentCount: number;
-    limit: number;
-    plan: PlanType;
-    maxDurationMinutes: number;
-    error?: string;
-}
-
 export interface StartSessionResult {
     success: boolean;
     sessionId?: string;
     maxDurationMinutes?: number;
     error?: string;
-    isBillingError?: boolean;
 }
 
 export interface EndSessionResult {

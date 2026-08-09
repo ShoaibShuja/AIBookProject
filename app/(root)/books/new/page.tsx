@@ -1,6 +1,8 @@
 import UploadForm from "@/components/UploadForm";
+import { requireUser } from '@/lib/auth';
 
-const Page = () => {
+const Page = async () => {
+    await requireUser();
     return (
         <main className="new-book">
             <section className="flex flex-col gap-5 text-center">

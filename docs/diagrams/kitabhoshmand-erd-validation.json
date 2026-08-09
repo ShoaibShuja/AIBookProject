@@ -1,0 +1,29 @@
+{
+  "generatedAt": "2026-06-25T19:14:13.158Z",
+  "sourceModels": [
+    "database/models/book.model.ts",
+    "database/models/book-segment.model.ts",
+    "database/models/voice-session.model.ts",
+    "types.d.ts"
+  ],
+  "notation": "draw.io ERD table library: shape=table and shape=tableRow; relationship edges use ER one/many arrow notation and anchor to specific key rows.",
+  "diagrams": [
+    {
+      "name": "Logical ERD",
+      "entities": 4,
+      "weakEntities": [
+        "BookSegment",
+        "VoiceSession"
+      ],
+      "relationships": 5,
+      "bridgeTables": "No bridge/junction collection exists in the implemented schema."
+    },
+    {
+      "name": "Physical ERD",
+      "collections": 3,
+      "externalEntities": 1,
+      "indexConstraintBox": true,
+      "relationships": 7
+    }
+  ]
+}

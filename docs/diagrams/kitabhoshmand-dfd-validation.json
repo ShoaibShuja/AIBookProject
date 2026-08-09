@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-06-25T19:05:51.885Z",
+  "notation": "Draw.io Data Flow Diagram library styles in .drawio: mxgraph.dfd.externalEntity and mxgraph.dfd.dataStoreID.",
+  "diagrams": [
+    {
+      "name": "Level 0 Context",
+      "checks": {
+        "externalEntities": 6,
+        "processes": 1,
+        "dataStores": 0,
+        "dataFlows": 12,
+        "allFlowsLabeled": true,
+        "processesHaveInputsAndOutputs": true,
+        "danglingEdges": false
+      }
+    },
+    {
+      "name": "Level 1A Upload and Library",
+      "checks": {
+        "externalEntities": 3,
+        "processes": 5,
+        "dataStores": 2,
+        "dataFlows": 16,
+        "allFlowsLabeled": true,
+        "processesHaveInputsAndOutputs": true,
+        "danglingEdges": false
+      }
+    },
+    {
+      "name": "Level 1B Voice Session",
+      "checks": {
+        "externalEntities": 3,
+        "processes": 4,
+        "dataStores": 3,
+        "dataFlows": 18,
+        "allFlowsLabeled": true,
+        "processesHaveInputsAndOutputs": true,
+        "danglingEdges": false
+      }
+    }
+  ],
+  "exportNote": "draw.io desktop CLI was unavailable in this environment; WebP images were rendered from the same diagram specification with sharp."
+}

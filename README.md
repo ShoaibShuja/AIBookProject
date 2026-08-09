@@ -23,9 +23,7 @@ KitabHoshmand transforms a static PDF into an interactive study companion:
 - TypeScript
 - Tailwind CSS 4
 - shadcn/Radix UI
-- Clerk authentication and PricingTable
-- MongoDB and Mongoose
-- Vercel Blob
+- Supabase Auth, Postgres, Row Level Security, and private Storage
 - Vapi Web SDK
 - ElevenLabs voice configuration through Vapi
 - pdfjs-dist
@@ -33,20 +31,18 @@ KitabHoshmand transforms a static PDF into an interactive study companion:
 
 ## Main Features
 
-- **PDF upload and ingestion**: validates PDF files, uploads them to Vercel Blob, extracts text, and stores searchable segments.
+- **PDF upload and ingestion**: validates PDF files, uploads them to private Supabase Storage, extracts text, and stores searchable segments.
 - **Smart book library**: lists uploaded books and supports title/author search.
 - **Voice-native study flow**: starts a Vapi session for a selected book and displays live transcripts.
 - **Book-aware search tool**: Vapi can call the app API to search stored book segments.
-- **Authentication**: protected book conversation pages and authenticated upload flow through Clerk.
-- **Subscription limits**: plan-based limits for books, monthly sessions, and session duration.
+- **Authentication**: protected pages and authenticated uploads through Supabase email/password Auth.
+- **Free-plan limits**: one book, five monthly voice sessions, and five minutes per session.
 
 ## Routes
 
 - `/`: smart book library and search.
 - `/books/new`: PDF upload and assistant voice selection.
 - `/books/[slug]`: protected voice study page for one book.
-- `/subscriptions`: Clerk PricingTable page.
-- `/api/upload`: Vercel Blob upload token endpoint.
 - `/api/vapi/search-book`: Vapi tool endpoint for searching book segments.
 
 ## Environment Variables
@@ -54,27 +50,17 @@ KitabHoshmand transforms a static PDF into an interactive study companion:
 Create `.env.local` in the project root:
 
 ```env
-NODE_ENV='development'
-NEXT_PUBLIC_BASE_URL=
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
-# Clerk
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/
-NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/
-
-# Vercel Blob
-BLOB_READ_WRITE_TOKEN=
-
-# MongoDB
-MONGODB_URI=
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 
 # Vapi
 NEXT_PUBLIC_ASSISTANT_ID=
 NEXT_PUBLIC_VAPI_API_KEY=
-VAPI_SERVER_SECRET=
+VAPI_SEARCH_WEBHOOK_SECRET=
 
 # Optional/future AI integrations
 GOOGLE_GEMINI_API_KEY=
@@ -88,6 +74,8 @@ npm install
 npm run dev
 ```
 
+Apply `supabase/migrations/202608090001_initial_schema.sql` to a new Supabase project before starting the app. Configure Supabase Auth with email confirmation, password recovery redirects, and your local/production callback URL. Copy `.env.example` to `.env.local` and supply the Supabase and Vapi values.
+
 Open [http://localhost:3000](http://localhost:3000).
 
 ## Validation
@@ -97,6 +85,10 @@ npm run lint
 npm run build
 npx tsc --noEmit
 ```
+
+## Legacy MongoDB Migration
+
+Keep a MongoDB and Vercel Blob backup before cutover. Run `npm run migrate:legacy` with the temporary MongoDB credentials in `.env.local`; it imports records without assigning them to an account. After users create fresh Supabase accounts, provide a JSON array of `{ "legacyClerkId", "newSupabaseUserId" }` mappings and run `npm run map:legacy-users` with `LEGACY_USER_MAPPING_FILE` set. Imported books remain private and inaccessible until mapped.
 
 ## Monograph Notes
 
