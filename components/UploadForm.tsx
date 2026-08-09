@@ -17,7 +17,6 @@ import { ACCEPTED_IMAGE_TYPES, ACCEPTED_PDF_TYPES } from '@/lib/constants';
 import { parsePDFFile } from '@/lib/utils';
 import { checkBookExists, ingestBook } from '@/lib/actions/book.actions';
 import { createClient } from '@/lib/supabase/client';
-import { useAuth } from '@/components/AuthProvider';
 import type { BookUploadFormValues } from '@/types';
 
 function extensionFor(file: File | Blob, fallback: string) {
@@ -29,7 +28,6 @@ function extensionFor(file: File | Blob, fallback: string) {
 
 export default function UploadForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user } = useAuth();
   const router = useRouter();
   const form = useForm<BookUploadFormValues>({
     resolver: zodResolver(UploadSchema),
@@ -37,13 +35,14 @@ export default function UploadForm() {
   });
 
   async function onSubmit(data: BookUploadFormValues) {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       router.replace('/sign-in');
       return;
     }
 
     setIsSubmitting(true);
-    const supabase = createClient();
     const bookId = crypto.randomUUID();
     const prefix = `${user.id}/${bookId}`;
     const uploaded: { bucket: 'book-files' | 'book-covers'; path: string }[] = [];

@@ -12,7 +12,7 @@ KitabHoshmand transforms a static PDF into an interactive study companion:
 - Extract and store text segments for search.
 - Browse and search the uploaded library.
 - Open a protected book page.
-- Start a real-time voice conversation about the book.
+- Start a real-time voice conversation or a persisted text chat about the book.
 - Let the voice assistant search stored book segments during the conversation.
 - Track usage through subscription-style limits.
 
@@ -33,7 +33,8 @@ KitabHoshmand transforms a static PDF into an interactive study companion:
 
 - **PDF upload and ingestion**: validates PDF files, uploads them to private Supabase Storage, extracts text, and stores searchable segments.
 - **Smart book library**: lists uploaded books and supports title/author search.
-- **Voice-native study flow**: starts a Vapi session for a selected book and displays live transcripts.
+- **Conversation history**: saves final voice transcripts and text-chat messages in per-book sessions.
+- **Text study flow**: uses Gemini through a server-only boundary and grounds answers in private book segments.
 - **Book-aware search tool**: Vapi can call the app API to search stored book segments.
 - **Authentication**: protected pages and authenticated uploads through Supabase email/password Auth.
 - **Free-plan limits**: one book, five monthly voice sessions, and five minutes per session.
@@ -43,6 +44,7 @@ KitabHoshmand transforms a static PDF into an interactive study companion:
 - `/`: smart book library and search.
 - `/books/new`: PDF upload and assistant voice selection.
 - `/books/[slug]`: protected voice study page for one book.
+- `/books/[slug]/chat`: protected text-chat study page for one book.
 - `/api/vapi/search-book`: Vapi tool endpoint for searching book segments.
 
 ## Environment Variables
@@ -62,8 +64,9 @@ NEXT_PUBLIC_ASSISTANT_ID=
 NEXT_PUBLIC_VAPI_API_KEY=
 VAPI_SEARCH_WEBHOOK_SECRET=
 
-# Optional/future AI integrations
+# Text chat (server-only)
 GOOGLE_GEMINI_API_KEY=
+GEMINI_MODEL=gemini-2.5-flash
 ELEVENLABS_API_KEY=
 ```
 
@@ -74,7 +77,7 @@ npm install
 npm run dev
 ```
 
-Apply `supabase/migrations/202608090001_initial_schema.sql` to a new Supabase project before starting the app. Configure Supabase Auth with email confirmation, password recovery redirects, and your local/production callback URL. Copy `.env.example` to `.env.local` and supply the Supabase and Vapi values.
+Apply all SQL files in `supabase/migrations/` to a new Supabase project before starting the app. Configure Supabase Auth with email confirmation, password recovery redirects, and your local/production callback URL. Copy `.env.example` to `.env.local` and supply the Supabase, Vapi, and Gemini values.
 
 Open [http://localhost:3000](http://localhost:3000).
 
@@ -84,6 +87,7 @@ Open [http://localhost:3000](http://localhost:3000).
 npm run lint
 npm run build
 npx tsc --noEmit
+npm test
 ```
 
 ## Legacy MongoDB Migration

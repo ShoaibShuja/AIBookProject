@@ -3,6 +3,13 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 type SearchRow = { content: string };
+type ToolCall = {
+  id?: string;
+  name?: string;
+  parameters?: unknown;
+  function?: { name?: string; arguments?: unknown };
+  toolCall?: { id?: string; parameters?: unknown; function?: { name?: string; arguments?: unknown } };
+};
 
 function isAuthorized(request: Request) {
   const secret = process.env.VAPI_SEARCH_WEBHOOK_SECRET;
@@ -32,10 +39,29 @@ async function search(bookId: unknown, query: unknown) {
   const { data, error } = await supabase.rpc('search_book_segments', {
     p_book_id: normalizedBookId,
     p_query: normalizedQuery.slice(0, 500),
-    p_limit: 3,
+    p_limit: 2,
   });
-  if (error || !data?.length) return { result: 'No information found about this topic in the book.' };
-  return { result: (data as SearchRow[]).map(({ content }) => content).join('\n\n') };
+  if (error) {
+    console.error('Vapi book search failed:', error.message);
+    return { result: 'Book search is temporarily unavailable.' };
+  }
+  if (!data?.length) return { result: 'No information found about this topic in the book.' };
+
+  // Vapi requires a concise, single-line string for a tool result.
+  const result = (data as SearchRow[]).map(({ content }) => content).join(' ').replace(/\s+/g, ' ').trim();
+  return { result: result.slice(0, 5000) || 'No information found about this topic in the book.' };
+}
+
+function getToolName(toolCall: ToolCall) {
+  return toolCall.function?.name ?? toolCall.toolCall?.function?.name ?? toolCall.name;
+}
+
+function getToolArgs(toolCall: ToolCall) {
+  return parseArgs(toolCall.function?.arguments ?? toolCall.toolCall?.function?.arguments ?? toolCall.parameters ?? toolCall.toolCall?.parameters);
+}
+
+function getToolCallId(toolCall: ToolCall) {
+  return toolCall.id ?? toolCall.toolCall?.id;
 }
 
 export async function GET() {
@@ -48,7 +74,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const functionCall = body?.message?.functionCall;
-    const toolCalls = body?.message?.toolCallList ?? body?.message?.toolCalls;
+    const toolCalls = body?.message?.toolCallList ?? body?.message?.toolCalls ?? body?.message?.toolWithToolCallList;
     if (functionCall) {
       if (functionCall.name !== 'searchBook') return NextResponse.json({ result: `Unknown function: ${functionCall.name}` }, { status: 400 });
       const args = parseArgs(functionCall.parameters);
@@ -56,13 +82,17 @@ export async function POST(request: Request) {
     }
     if (!Array.isArray(toolCalls)) return NextResponse.json({ results: [{ result: 'No tool calls found.' }] }, { status: 400 });
 
-    const results = await Promise.all(toolCalls.map(async (toolCall: { id?: string; function?: { name?: string; arguments?: unknown } }) => {
-      if (toolCall.function?.name !== 'searchBook') return { toolCallId: toolCall.id, result: `Unknown function: ${toolCall.function?.name ?? 'unknown'}` };
-      const args = parseArgs(toolCall.function.arguments);
-      return { toolCallId: toolCall.id, ...await search(args.bookId, args.query) };
+    const results = await Promise.all((toolCalls as ToolCall[]).map(async (toolCall) => {
+      const name = getToolName(toolCall);
+      const toolCallId = getToolCallId(toolCall);
+      if (name !== 'searchBook') return { name, toolCallId, result: `Unknown function: ${name ?? 'unknown'}` };
+      const args = getToolArgs(toolCall);
+      return { name, toolCallId, ...await search(args.bookId, args.query) };
     }));
     return NextResponse.json({ results });
-  } catch {
-    return NextResponse.json({ results: [{ result: 'Error processing request.' }] }, { status: 400 });
+  } catch (error) {
+    console.error('Vapi tool request failed:', error);
+    // Vapi ignores non-200 tool responses, so return an in-band error for authorized requests.
+    return NextResponse.json({ results: [{ result: 'Book search could not be completed.' }] });
   }
 }

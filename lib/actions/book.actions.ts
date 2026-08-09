@@ -22,7 +22,12 @@ const createBookSchema = z.object({
   pdfPath: z.string().min(1).max(500),
   coverPath: z.string().max(500).optional(),
   fileSize: z.number().int().positive().max(50 * 1024 * 1024),
-  segments: z.array(textSegmentSchema).min(1),
+  segments: z.array(textSegmentSchema).min(1).superRefine((segments, context) => {
+    segments.forEach((segment, index) => {
+      if (segment.segmentIndex !== index) context.addIssue({ code: z.ZodIssueCode.custom, message: 'Segment indexes must be contiguous.' });
+      if (segment.wordCount > 500) context.addIssue({ code: z.ZodIssueCode.custom, message: 'Segments cannot exceed 500 words.' });
+    });
+  }),
 });
 
 type BookRow = {
