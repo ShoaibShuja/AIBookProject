@@ -63,6 +63,20 @@ export interface CreateBook {
     segments: TextSegment[];
 }
 
+export interface ConversationSession {
+    id: string;
+    startedAt: Date;
+    createdAt: Date;
+}
+
+export interface ConversationMessage {
+    id: string;
+    role: 'user' | 'assistant';
+    content: string;
+    sequenceIndex: number;
+    createdAt: Date;
+}
+
 export interface TextSegment {
     text: string;
     segmentIndex: number;

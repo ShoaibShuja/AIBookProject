@@ -3,8 +3,10 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 import { getBookBySlug } from "@/lib/actions/book.actions";
-import VapiControls from "@/components/VapiControls";
 import { requireUser } from '@/lib/auth';
+import { getVoiceConversationHistory } from '@/lib/actions/conversation.actions';
+import VoiceStudy from '@/components/VoiceStudy';
+import BookModeTabs from '@/components/BookModeTabs';
 
 export default async function BookDetailsPage({
   params,
@@ -21,6 +23,7 @@ export default async function BookDetailsPage({
   }
 
   const book = result.data;
+  const sessions = await getVoiceConversationHistory(book.id);
 
   return (
     <div className="book-page-container">
@@ -28,7 +31,8 @@ export default async function BookDetailsPage({
         <ArrowLeft className="size-6 text-[#212a3b]" />
       </Link>
 
-      <VapiControls book={book} />
+      <BookModeTabs slug={book.slug} active="voice" />
+      <VoiceStudy book={book} sessions={sessions} />
     </div>
   );
 }

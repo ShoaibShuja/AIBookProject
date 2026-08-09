@@ -7,7 +7,7 @@ import Vapi from '@vapi-ai/web';
 import { ASSISTANT_ID, DEFAULT_VOICE, VOICE_SETTINGS } from '@/lib/constants';
 import { getVoice } from '@/lib/utils';
 import { IBook, Messages } from '@/types';
-import { startVoiceSession, endVoiceSession } from '@/lib/actions/session.actions';
+import { appendVoiceMessage, startVoiceSession, endVoiceSession } from '@/lib/actions/session.actions';
 import { FREE_PLAN_LIMITS } from '@/lib/limits';
 
 export function useLatestRef<T>(value: T) {
@@ -37,9 +37,9 @@ function getVapi() {
 
 export type CallStatus = 'idle' | 'connecting' | 'starting' | 'listening' | 'thinking' | 'speaking';
 
-export function useVapi(book: IBook) {
+export function useVapi(book: IBook, initialMessages: Messages[] = []) {
     const [status, setStatus] = useState<CallStatus>('idle');
-    const [messages, setMessages] = useState<Messages[]>([]);
+    const [messages, setMessages] = useState<Messages[]>(initialMessages);
     const [currentMessage, setCurrentMessage] = useState('');
     const [currentUserMessage, setCurrentUserMessage] = useState('');
     const [duration, setDuration] = useState(0);
@@ -49,6 +49,7 @@ export function useVapi(book: IBook) {
     const startTimeRef = useRef<number | null>(null);
     const sessionIdRef = useRef<string | null>(null);
     const isStoppingRef = useRef(false);
+    const nextMessageIndexRef = useRef(initialMessages.length);
 
     // Keep refs in sync with latest values for use in callbacks
     const maxDurationSeconds = FREE_PLAN_LIMITS.maxDurationPerSession * 60;
@@ -155,10 +156,14 @@ export function useVapi(book: IBook) {
                     if (message.role === 'user') setCurrentUserMessage('');
 
                     setMessages((prev) => {
-                        const isDupe = prev.some(
-                            (m) => m.role === message.role && m.content === message.transcript,
-                        );
-                        return isDupe ? prev : [...prev, { role: message.role, content: message.transcript }];
+                        const lastMessage = prev.at(-1);
+                        const isDupe = lastMessage?.role === message.role && lastMessage.content === message.transcript;
+                        if (isDupe) return prev;
+                        const sessionId = sessionIdRef.current;
+                        if (sessionId) {
+                            void appendVoiceMessage({ sessionId, role: message.role === 'user' ? 'user' : 'assistant', content: message.transcript, sequenceIndex: nextMessageIndexRef.current++ });
+                        }
+                        return [...prev, { role: message.role, content: message.transcript }];
                     });
                 }
             },
@@ -237,6 +242,7 @@ export function useVapi(book: IBook) {
             }
 
             sessionIdRef.current = result.sessionId || null;
+            nextMessageIndexRef.current = 0;
             const firstMessage = `Hey, good to meet you. Quick question before we dive in - have you actually read ${book.title} yet, or are we starting fresh?`;
 
             await getVapi().start(ASSISTANT_ID, {

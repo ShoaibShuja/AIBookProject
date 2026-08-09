@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { createClient } from '@/lib/supabase/client';
@@ -17,7 +17,6 @@ const copy: Record<AuthMode, { title: string; submit: string }> = {
 };
 
 export function AuthForm({ mode }: { mode: AuthMode }) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,7 +35,11 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     if (mode === 'sign-in') {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setMessage(error.message);
-      else router.replace(searchParams.get('next') || '/');
+      else {
+        // Use a document navigation so the server receives the newly-written SSR auth cookies.
+        window.location.assign(searchParams.get('next') || '/');
+        return;
+      }
     }
     if (mode === 'sign-up') {
       const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${siteUrl}/auth/callback?next=/` } });
@@ -49,7 +52,10 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     if (mode === 'reset-password') {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) setMessage(error.message);
-      else router.replace('/');
+      else {
+        window.location.assign('/');
+        return;
+      }
     }
     setIsSubmitting(false);
   }

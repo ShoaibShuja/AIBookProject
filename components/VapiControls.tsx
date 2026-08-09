@@ -2,7 +2,7 @@
 
 import {Mic, MicOff} from "lucide-react";
 import useVapi from "@/hooks/useVapi";
-import {IBook} from "@/types";
+import {IBook, Messages} from "@/types";
 import Image from "next/image";
 import Transcript from "@/components/Transcript";
 import {toast} from "sonner";
@@ -10,8 +10,8 @@ import {toast} from "sonner";
 import {useRouter} from "next/navigation";
 import {useEffect} from "react";
 
-const VapiControls = ({ book }: { book: IBook }) => {
-    const { status, isActive, messages, currentMessage, currentUserMessage, duration, start, stop, clearError, limitError, maxDurationSeconds } = useVapi(book)
+const VapiControls = ({ book, initialMessages = [], readOnly = false }: { book: IBook; initialMessages?: Messages[]; readOnly?: boolean }) => {
+    const { status, isActive, messages, currentMessage, currentUserMessage, duration, start, stop, clearError, limitError, maxDurationSeconds } = useVapi(book, initialMessages)
     const router = useRouter();
 
     useEffect(() => {
@@ -61,7 +61,7 @@ const VapiControls = ({ book }: { book: IBook }) => {
                             )}
                             <button
                                 onClick={isActive ? stop : start}
-                                disabled={status === 'connecting'}
+                                disabled={readOnly || status === 'connecting'}
                                 className={`vapi-mic-btn shadow-md !w-[60px] !h-[60px] z-10 ${isActive ? 'vapi-mic-btn-active' : 'vapi-mic-btn-inactive'}`}
                             >
                                 {isActive ? (
