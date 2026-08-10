@@ -77,6 +77,29 @@ export interface ConversationMessage {
     createdAt: Date;
 }
 
+export interface SummaryChapter {
+    id?: string;
+    title: string;
+    startSegmentIndex: number;
+    endSegmentIndex: number;
+    startPage?: number;
+    endPage?: number;
+}
+
+export interface BookStudyGuide {
+    overview: string;
+    chapterSummaries: { title: string; summary: string }[];
+    keyConcepts: string[];
+    keyTakeaways: string[];
+    reviewQuestions: string[];
+}
+
+export interface SavedBookSummary {
+    guide: BookStudyGuide;
+    model: string;
+    generatedAt: Date;
+}
+
 export interface TextSegment {
     text: string;
     segmentIndex: number;
