@@ -6,6 +6,7 @@ import { getChatConversationMessages, sendChatMessage } from '@/lib/actions/conv
 import ConversationSidebar from '@/components/ConversationSidebar';
 
 export default function ChatStudy({ book, sessions }: { book: IBook; sessions: ConversationSession[] }) {
+  const [sessionList, setSessionList] = useState(sessions);
   const [activeId, setActiveId] = useState<string>();
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
   const [input, setInput] = useState('');
@@ -17,12 +18,20 @@ export default function ChatStudy({ book, sessions }: { book: IBook; sessions: C
     const optimistic: ConversationMessage = { id: `pending-${Date.now()}`, role: 'user', content, sequenceIndex: messages.length, createdAt: new Date() };
     setMessages((current) => [...current, optimistic]);
     const result = await sendChatMessage({ bookId: book.id, sessionId: activeId, content });
-    if (!result.success || !result.message || !result.sessionId) { setMessages((current) => current.filter((message) => message.id !== optimistic.id)); setError(result.error ?? 'The chat assistant could not respond.'); return; }
+    if (!result.success || !result.message || !result.sessionId) {
+      if (result.sessionId && !activeId) {
+        setActiveId(result.sessionId);
+        setSessionList((current) => [{ id: result.sessionId!, startedAt: new Date(), createdAt: new Date() }, ...current]);
+      }
+      setError(result.error ?? 'The chat assistant could not respond.');
+      return;
+    }
+    if (!activeId) setSessionList((current) => [{ id: result.sessionId!, startedAt: new Date(), createdAt: new Date() }, ...current]);
     setActiveId(result.sessionId);
     setMessages((current) => [...current.filter((message) => message.id !== optimistic.id), optimistic, result.message]);
   }); };
   return <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row">
-    <ConversationSidebar sessions={sessions} activeSessionId={activeId} onSelect={selectSession} onNew={newChat} label="chat" />
+    <ConversationSidebar sessions={sessionList} activeSessionId={activeId} onSelect={selectSession} onNew={newChat} label="chat" />
     <section className="flex min-h-[560px] min-w-0 flex-1 flex-col rounded-2xl border border-[#d6c4aa] bg-[#fffdf8] shadow-sm">
       <header className="border-b border-[#eadcc8] px-5 py-4"><h1 className="font-serif text-2xl font-bold text-[#212a3b]">Chat with {book.title}</h1><p className="mt-1 text-sm text-[#6d5946]">Ask about the book. Answers use its stored passages.</p></header>
       <div className="flex-1 space-y-3 overflow-y-auto p-5" aria-live="polite">{messages.length === 0 ? <p className="pt-16 text-center text-[#806d59]">Start a text conversation about this book.</p> : messages.map((message) => <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}><p className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-6 ${message.role === 'user' ? 'bg-[#663820] text-white' : 'bg-[#f0e4d1] text-[#34271e]'}`}>{message.content}</p></div>)}</div>

@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { requireUser } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { generateBookReply } from '@/lib/openai';
 import type { ConversationMessage, ConversationSession } from '@/types';
 
 const messageInputSchema = z.object({ bookId: z.string().uuid(), sessionId: z.string().uuid().optional(), content: z.string().trim().min(1).max(4000) });
@@ -48,22 +49,6 @@ async function getGrounding(bookId: string, query: string) {
   return ((data ?? []) as { content: string }[]).map((row) => row.content).join('\n\n---\n\n');
 }
 
-async function generateReply(question: string, history: ConversationMessage[], grounding: string) {
-  const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
-  if (!apiKey) throw new Error('Chat is not configured.');
-  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-  const transcript = history.slice(-10).map((message) => `${message.role}: ${message.content}`).join('\n');
-  const prompt = `You are a helpful study companion. Answer from the supplied book excerpts. If the excerpts do not support an answer, say so plainly. Do not invent citations.\n\nBook excerpts:\n${grounding || 'No relevant excerpts were found.'}\n\nRecent conversation:\n${transcript}\n\nUser question: ${question}`;
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`, {
-    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] }), cache: 'no-store',
-  });
-  if (!response.ok) throw new Error('The chat assistant could not respond.');
-  const payload = await response.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
-  const text = payload.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('').trim();
-  if (!text) throw new Error('The chat assistant returned an empty response.');
-  return text;
-}
-
 export async function sendChatMessage(input: z.infer<typeof messageInputSchema>) {
   const user = await requireUser();
   const parsed = messageInputSchema.safeParse(input);
@@ -90,7 +75,7 @@ export async function sendChatMessage(input: z.infer<typeof messageInputSchema>)
   if (userError) return { success: false, error: 'Could not save your message.' };
 
   try {
-    const reply = await generateReply(content, history, await getGrounding(bookId, content));
+    const reply = await generateBookReply({ question: content, history, grounding: await getGrounding(bookId, content), safetyIdentifier: user.id });
     const { data: assistant, error: assistantError } = await supabase.from('chat_messages').insert({ session_id: sessionId, role: 'assistant', content: reply, sequence_index: userIndex + 1 }).select('id,role,content,sequence_index,created_at').single();
     if (assistantError || !assistant) throw new Error('Could not save the assistant response.');
     return { success: true, sessionId, message: mapMessage(assistant as MessageRow) };
