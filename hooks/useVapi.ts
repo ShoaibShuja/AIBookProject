@@ -1,6 +1,6 @@
 'use client';
 
-// Create hooks/useVapi.ts: the core hook. Initializes Vapi SDK, manages call lifecycle (idle, connecting, starting, listening, thinking, speaking), tracks messages array + currentMessage streaming, handles duration timer with maxDuration enforcement, session tracking via server actions
+// Create hooks/useVapi.ts: the core hook. Initializes Vapi SDK, manages call lifecycle (idle, connecting, starting, listening, thinking, speaking), tracks messages array + currentMessage streaming, and persists sessions.
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Vapi from '@vapi-ai/web';
@@ -8,7 +8,6 @@ import { ASSISTANT_ID, DEFAULT_VOICE, VOICE_SETTINGS } from '@/lib/constants';
 import { getVoice } from '@/lib/utils';
 import { IBook, Messages } from '@/types';
 import { appendVoiceMessage, startVoiceSession, endVoiceSession } from '@/lib/actions/session.actions';
-import { FREE_PLAN_LIMITS } from '@/lib/limits';
 
 export function useLatestRef<T>(value: T) {
     const ref = useRef(value);
@@ -22,7 +21,6 @@ export function useLatestRef<T>(value: T) {
 
 const VAPI_API_KEY = process.env.NEXT_PUBLIC_VAPI_API_KEY;
 const TIMER_INTERVAL_MS = 1000;
-const SECONDS_PER_MINUTE = 60;
 
 let vapi: InstanceType<typeof Vapi>;
 function getVapi() {
@@ -52,8 +50,6 @@ export function useVapi(book: IBook, initialMessages: Messages[] = []) {
     const nextMessageIndexRef = useRef(initialMessages.length);
 
     // Keep refs in sync with latest values for use in callbacks
-    const maxDurationSeconds = FREE_PLAN_LIMITS.maxDurationPerSession * 60;
-    const maxDurationRef = useLatestRef(maxDurationSeconds);
     const durationRef = useLatestRef(duration);
     const voice = book.persona || DEFAULT_VOICE;
 
@@ -74,15 +70,6 @@ export function useVapi(book: IBook, initialMessages: Messages[] = []) {
                         const newDuration = Math.floor((Date.now() - startTimeRef.current) / TIMER_INTERVAL_MS);
                         setDuration(newDuration);
 
-                        // Check duration limit
-                        if (newDuration >= maxDurationRef.current) {
-                            getVapi().stop();
-                            setLimitError(
-                                `Session time limit (${Math.floor(
-                                    maxDurationRef.current / SECONDS_PER_MINUTE,
-                                )} minutes) reached. Upgrade your plan for longer sessions.`,
-                            );
-                        }
                     }
                 }, TIMER_INTERVAL_MS);
             },
@@ -225,18 +212,18 @@ export function useVapi(book: IBook, initialMessages: Messages[] = []) {
             });
             if (timerRef.current) clearInterval(timerRef.current);
         };
-    }, [durationRef, maxDurationRef]);
+    }, [durationRef]);
 
     const start = useCallback(async () => {
         setLimitError(null);
         setStatus('connecting');
 
         try {
-            // Check session limits and create session record
+            // Create a persisted session record before connecting to Vapi.
             const result = await startVoiceSession(book.id);
 
             if (!result.success) {
-                setLimitError(result.error || 'Session limit reached. Please upgrade your plan.');
+                setLimitError(result.error || 'Failed to start voice session. Please try again.');
                 setStatus('idle');
                 return;
             }
@@ -294,7 +281,6 @@ export function useVapi(book: IBook, initialMessages: Messages[] = []) {
         start,
         stop,
         limitError,
-        maxDurationSeconds,
         clearError,
     };
 }

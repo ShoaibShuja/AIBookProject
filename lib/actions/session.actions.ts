@@ -2,7 +2,6 @@
 
 import type { EndSessionResult, StartSessionResult } from '@/types';
 import { z } from 'zod';
-import { FREE_PLAN_LIMITS } from '@/lib/limits';
 import { requireUser } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 
@@ -11,16 +10,11 @@ export async function startVoiceSession(bookId: string): Promise<StartSessionRes
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('start_voice_session', { p_book_id: bookId });
 
-  if (error) {
-    const message = error.message.includes('SESSION_LIMIT_REACHED')
-      ? `You have reached the monthly free-plan limit of ${FREE_PLAN_LIMITS.maxSessionsPerMonth} sessions.`
-      : 'Failed to start voice session. Please try again later.';
-    return { success: false, error: message };
-  }
+  if (error) return { success: false, error: 'Failed to start voice session. Please try again later.' };
 
-  const session = (data as { session_id: string; max_duration_minutes: number }[] | null)?.[0];
+  const session = (data as { session_id: string }[] | null)?.[0];
   if (!session) return { success: false, error: 'Failed to start voice session. Please try again later.' };
-  return { success: true, sessionId: session.session_id, maxDurationMinutes: session.max_duration_minutes };
+  return { success: true, sessionId: session.session_id };
 }
 
 export async function endVoiceSession(sessionId: string, durationSeconds: number): Promise<EndSessionResult> {

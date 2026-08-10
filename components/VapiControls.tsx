@@ -11,7 +11,7 @@ import {useRouter} from "next/navigation";
 import {useEffect} from "react";
 
 const VapiControls = ({ book, initialMessages = [], readOnly = false }: { book: IBook; initialMessages?: Messages[]; readOnly?: boolean }) => {
-    const { status, isActive, messages, currentMessage, currentUserMessage, duration, start, stop, clearError, limitError, maxDurationSeconds } = useVapi(book, initialMessages)
+    const { status, isActive, messages, currentMessage, currentUserMessage, duration, start, stop, clearError, limitError } = useVapi(book, initialMessages)
     const router = useRouter();
 
     useEffect(() => {
@@ -93,7 +93,7 @@ const VapiControls = ({ book, initialMessages = [], readOnly = false }: { book: 
 
                             <div className="vapi-status-indicator">
                                 <span className="vapi-status-text">
-                                    {formatDuration(duration)}/{formatDuration(maxDurationSeconds)}
+                                    {formatDuration(duration)}
                                 </span>
                             </div>
                         </div>

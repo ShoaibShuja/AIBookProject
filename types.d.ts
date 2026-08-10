@@ -157,7 +157,6 @@ export interface FileUploadFieldProps<T extends FieldValues> {
 export interface StartSessionResult {
     success: boolean;
     sessionId?: string;
-    maxDurationMinutes?: number;
     error?: string;
 }
 

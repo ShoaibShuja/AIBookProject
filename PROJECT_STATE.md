@@ -12,7 +12,7 @@ Post-implementation validation and handoff. Text chat and saved per-book study g
 
 ## Completed Product Work
 
-- Supabase Auth/Postgres/private Storage replaced Clerk, MongoDB/Mongoose, Vercel Blob, and subscription UI. Book uploads are unlimited; voice limits remain five monthly sessions and five minutes each.
+- Supabase Auth/Postgres/private Storage replaced Clerk, MongoDB/Mongoose, Vercel Blob, and subscription UI. Book uploads and voice sessions are currently unlimited.
 - Auth state now subscribes to Supabase events, sign-in forces a cookie-visible navigation, uploads re-check the current browser session, and Navbar has an accessible profile menu.
 - Books have isolated sequential text segments; server/RPC validation protects malformed input and `total_segments` consistency.
 - Voice sessions persist final Vapi transcripts. Saved voice and text conversations are listed per book; `/books/[slug]` stays voice and `/books/[slug]/chat` is text chat.
@@ -49,6 +49,6 @@ Post-implementation validation and handoff. Text chat and saved per-book study g
 ## Do Not Accidentally Change
 
 - Do not restore Clerk, Mongoose, Vercel Blob, paid plans, or `/subscriptions`.
-- Do not accept client-supplied owner IDs, expose `SUPABASE_SERVICE_ROLE_KEY`/`GEMINI_API_KEY`, bypass RLS, make buckets public, remove voice limits, or grant segment search to browser roles.
+- Do not accept client-supplied owner IDs, expose `SUPABASE_SERVICE_ROLE_KEY`/`GEMINI_API_KEY`, bypass RLS, make buckets public, or grant segment search to browser roles.
 - Do not silently change the configured Gemini model or hide actionable Gemini API errors.
 - Do not delete legacy backups/mapping metadata or auto-assign unmapped legacy books.
