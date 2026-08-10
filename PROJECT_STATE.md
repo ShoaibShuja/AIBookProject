@@ -1,54 +1,48 @@
-# Project State: KitabHoshmand Supabase, Voice, and Chat
+# Project State: KitabHoshmand
 
 ## Current Phase
 
-Post-implementation validation and handoff. Text chat and saved per-book study guides use Gemini through Google AI Studio.
+Post-implementation validation and handoff. Completed prompts: **1** Supabase migration; **2** Supabase/Vapi validation; **3** persisted voice/chat sessions and migration; **4** auth/upload fixes; **5** Navbar profile dropdown; **6** Vapi tool-call repair; **7** OpenAI-to-Gemini chat migration; **8** Gemini error handling; **9** per-book Gemini summaries; **10** summary library/Navbar entry; **11** unlimited book uploads; **12** unlimited voice sessions and duration.
 
 ## Repository
 
 - Branch: `main`.
-- Recent relevant commits: `153aeb8` `Merge pull request #4 from ShoaibShuja/feat/add-chat`; `a630368` `added another tab besides voice named chat`; `0022e6c` `Merge pull request #3 from ShoaibShuja/feat/supabase`; `04e1e41` `recreated the database and changed DB from mongodb to supabase`; `399d1c5` `first commit`; `654b87d` `feat: rebrand app as KitabHoshmand`.
-- Chat provider files: `lib/gemini.ts` and `tests/gemini.test.ts`.
+- Recent commits: `194b3ca` `removed all limits to users`; `91fef4f` `removed the book upload limits`; `5a230e4` `added summaries to navbar`; `216e3ce` `Merge pull request #5 from ShoaibShuja/feat/summaries`; `6fa10dc` `added a new feature: summarize books or docs`; `153aeb8` `Merge pull request #4 from ShoaibShuja/feat/add-chat`; `0022e6c` `Merge pull request #3 from ShoaibShuja/feat/supabase`.
+- Working tree was clean at handoff, except this state-file refresh if not committed afterward.
 
-## Completed Product Work
+## Completed Features
 
-- Supabase Auth/Postgres/private Storage replaced Clerk, MongoDB/Mongoose, Vercel Blob, and subscription UI. Book uploads and voice sessions are currently unlimited.
-- Auth state now subscribes to Supabase events, sign-in forces a cookie-visible navigation, uploads re-check the current browser session, and Navbar has an accessible profile menu.
-- Books have isolated sequential text segments; server/RPC validation protects malformed input and `total_segments` consistency.
-- Voice sessions persist final Vapi transcripts. Saved voice and text conversations are listed per book; `/books/[slug]` stays voice and `/books/[slug]/chat` is text chat.
-- Text chat uses the server-only Gemini GenerateContent API with `gemini-2.5-flash`, book-segment grounding, recent history, an abort timeout, and RLS-protected persisted sessions/messages.
-- `/books/[slug]/summary` detects editable chapter ranges and generates a saved, grounded Gemini study guide through chapter summaries followed by final synthesis.
-- Vapi search supports current and legacy tool-call formats, returns matching call IDs and concise one-line passages. Direct validation found an uploaded book with 172 segments and a valid search response.
+- Supabase Auth/Postgres/private Storage/RLS replace Clerk, Mongo/Mongoose, and Vercel Blob. Books, voice sessions, and voice duration are currently unlimited.
+- Books store isolated sequential text segments. Voice transcripts, chat sessions/messages, and saved summaries are all persisted per book with ownership RLS.
+- Text chat uses server-only Gemini `gemini-2.5-flash`, grounded private segment retrieval, recent history, timeout handling, and actionable Gemini errors.
+- `/books/[slug]/summary` supports heading-based chapter detection with editable segment ranges, hierarchical Gemini chapter summaries, and a saved study guide. `/summaries` lists every owned book as summarized or not; users explicitly choose generation.
+- Navbar includes Library, Summary, Upload, and profile-menu equivalents. Vapi search remains bearer-secret protected and service-role-only.
 
-## Key Files and Schema
+## Important Files and Migrations
 
-- `supabase/migrations/202608090001_initial_schema.sql`: original Supabase schema/RPCs.
-- `supabase/migrations/202608100001_conversation_history_and_segments.sql`: retry-safe migration adding `voice_session_messages`, `chat_sessions`, `chat_messages`, RLS/indexes, and stricter `ingest_book` validation. The `ROWS FROM (...) WITH ORDINALITY` syntax fixes its prior PostgreSQL error.
-- `supabase/migrations/202608100002_book_summaries.sql`: owner-scoped chapter outline and saved study-guide tables with RLS.
-- `lib/actions/conversation.actions.ts`, `lib/gemini.ts`, `components/ChatStudy.tsx`, `components/VoiceStudy.tsx`, `components/ConversationSidebar.tsx`, `components/BookModeTabs.tsx`: conversations and text chat.
-- `hooks/useVapi.ts`, `app/api/vapi/search-book/route.ts`: transcript persistence and Vapi tool boundary.
-- `components/AuthProvider.tsx`, `components/AuthForm.tsx`, `components/UploadForm.tsx`, `components/Navbar.tsx`: live auth state, reliable uploads, profile dropdown.
-- `tests/gemini.test.ts`, `tests/utils.test.ts`, `vitest.config.mts`, `playwright.config.ts`: current test baseline.
+- `lib/gemini.ts`, `lib/summary.ts`, `lib/actions/{conversation,summary,session,book}.actions.ts`.
+- `components/{SummaryStudy,ChatStudy,VoiceStudy,BookModeTabs,Navbar}.tsx`; `app/books/[slug]/summary/page.tsx`; `app/summaries/page.tsx`.
+- `202608100001_conversation_history_and_segments.sql`: chat/voice history and validated ingestion.
+- `202608100002_book_summaries.sql`: `book_summary_chapters` and `book_summaries`, triggers, indexes, owner RLS.
+- `202608100003_remove_book_limit.sql`: removes active one-book ingestion check.
+- `202608100004_remove_voice_limits.sql`: removes active session-count and duration caps.
 
-## Routes, Security, and Configuration
+## Routes, Security, and Environment
 
-- Protected: `/`, `/books/new`, `/books/[slug]`, `/books/[slug]/chat`. Auth routes remain public. `/api/vapi/search-book` allows health `GET`; its `POST` requires the Vapi bearer secret.
-- RLS remains mandatory. Do not expose the service role or make storage buckets public. Vapi search is service-role-only after a constant-time bearer check; it must receive a public deployed URL, never localhost.
-- Required chat environment: `GEMINI_API_KEY` and optional `GEMINI_CHAT_MODEL=gemini-2.5-flash`. Keep existing Supabase/Vapi variables unchanged.
+- Protected routes: `/`, `/books/new`, `/books/[slug]`, `/books/[slug]/chat`, `/books/[slug]/summary`, `/summaries`. Auth routes are public. Vapi `POST /api/vapi/search-book` requires its bearer secret; `GET` is health only.
+- Never expose `GEMINI_API_KEY` or `SUPABASE_SERVICE_ROLE_KEY`; Gemini and service-role retrieval remain server-side. Keep RLS/private buckets and server-derived ownership checks.
+- Required chat env: `GEMINI_API_KEY`; optional `GEMINI_CHAT_MODEL=gemini-2.5-flash`. Existing Supabase/Vapi variables remain required.
 
-## Validation and Known Issues
+## Validation and Debt
 
-- Passing: `npm test` (5 tests), `npx tsc --noEmit`, `npm run build`. Lint has only the old unused `media` warning in `docs/proposal/build-proposal.mjs:113`.
-- Gemini has not yet been live-tested. Google AI Studio free-tier availability and limits are subject to the API project's quota.
-- No live Supabase RLS integration suite or authenticated Playwright suite is complete. The Playwright protected-route spec requires a running configured app/browser setup. Legacy import tooling exists but no live legacy import was run.
+- Passing: `npm test` (10 tests), `npx tsc --noEmit`, `npm run build`. Lint has one pre-existing warning: unused `media` in `docs/proposal/build-proposal.mjs:113`.
+- Apply migrations `202608100002` through `202608100004` to the live Supabase project if not already applied. Gemini has not been live-tested with a funded/configured AI Studio key. No completed live Supabase RLS suite or authenticated Playwright suite exists.
 
 ## Next Recommended Prompt
 
-"Add GEMINI_API_KEY from Google AI Studio, then run and verify an authenticated end-to-end chat conversation against an uploaded book, including persisted session history and a grounded response. Add Supabase RLS integration tests and complete Playwright coverage without changing production schema or auth behavior."
+"Apply and verify the latest Supabase migrations, then run an authenticated end-to-end validation of unlimited uploads, unlimited voice sessions, chat, and saved Gemini summaries against multiple books. Add Supabase RLS integration tests and authenticated Playwright coverage."
 
 ## Do Not Accidentally Change
 
-- Do not restore Clerk, Mongoose, Vercel Blob, paid plans, or `/subscriptions`.
-- Do not accept client-supplied owner IDs, expose `SUPABASE_SERVICE_ROLE_KEY`/`GEMINI_API_KEY`, bypass RLS, make buckets public, or grant segment search to browser roles.
-- Do not silently change the configured Gemini model or hide actionable Gemini API errors.
-- Do not delete legacy backups/mapping metadata or auto-assign unmapped legacy books.
+- Do not restore Clerk, Mongo/Mongoose runtime code, Vercel Blob, paid plans, subscriptions, user quotas, or automatic summary generation.
+- Do not bypass RLS, make Storage public, accept client-supplied owner IDs, expose secrets, grant `search_book_segments` to browser roles, silently change the Gemini model, or delete legacy migration/backups/mapping metadata.

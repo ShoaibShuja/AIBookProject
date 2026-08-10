@@ -1,77 +1,67 @@
-import React from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
+import Image from 'next/image';
+import Link from 'next/link';
+import { ArrowRight, BookOpen, Plus, Sparkles } from 'lucide-react';
+import type { IBook } from '@/types';
 
-const HeroSection = () => {
-    return (
-        <section className="wrapper mb-10 md:mb-16">
-            <div className="library-hero-card">
-                <div className="library-hero-content">
-                    {/* Left Part */}
-                    <div className="library-hero-text">
-                        <h1 className="library-hero-title text-4xl font-serif font-bold">KitabHoshmand Library</h1>
-                        <p className="library-hero-description">
-                            Turn academic PDFs into searchable, voice-native study companions. <br className="hidden md:block" />
-                            Upload, ask, listen, and review book knowledge with AI.
-                        </p>
-                        <Link href="/books/new" className="library-cta-primary mt-4 flex items-center justify-center">
-                            <span className="text-3xl font-light mb-1 mr-2">+</span>
-                            <span className="text-[#212a3b]">Upload book</span>
-                        </Link>
-                    </div>
+type HeroSectionProps = {
+  bookCount: number;
+  featuredBook?: IBook;
+  isSearchResult?: boolean;
+};
 
-                    {/* Center Part - Desktop */}
-                    <div className="library-hero-illustration-desktop">
-                        <Image
-                            src="/assets/hero-illustration.png"
-                            alt="Academic books for KitabHoshmand"
-                            width={400}
-                            height={400}
-                            className="object-contain"
-                        />
-                    </div>
+export default function HeroSection({ bookCount, featuredBook, isSearchResult = false }: HeroSectionProps) {
+  const hasBooks = bookCount > 0;
 
-                    {/* Center Part - Mobile (Hidden on Desktop) */}
-                    <div className="library-hero-illustration">
-                        <Image
-                            src="/assets/hero-illustration.png"
-                            alt="Academic books for KitabHoshmand"
-                            width={300}
-                            height={300}
-                            className="object-contain"
-                        />
-                    </div>
+  return (
+    <section className="dashboard-hero" aria-labelledby="dashboard-title">
+      <div className="dashboard-hero__texture" aria-hidden="true" />
+      <div className="dashboard-hero__content">
+        <p className="dashboard-kicker">Personal library</p>
+        <h1 id="dashboard-title">A quieter place to think with books.</h1>
+        <p className="dashboard-hero__description">
+          {isSearchResult
+            ? `We found ${bookCount} ${bookCount === 1 ? 'book' : 'books'} matching your search.`
+            : hasBooks
+            ? `Your library holds ${bookCount} ${bookCount === 1 ? 'book' : 'books'}, ready for a closer read.`
+            : 'Start a private library where every book can become a richer study experience.'}
+        </p>
+        <div className="dashboard-hero__actions">
+          <Link href="/books/new" className="dashboard-primary-action">
+            <Plus aria-hidden="true" />
+            Upload a book
+          </Link>
+          {featuredBook ? <Link href={`/books/${featuredBook.slug}`} className="dashboard-secondary-action">
+            Continue with {featuredBook.title}
+            <ArrowRight aria-hidden="true" />
+          </Link> : null}
+        </div>
+      </div>
 
-                    {/* Right Part */}
-                    <div className="library-steps-card min-w-[260px] max-w-[280px] z-10 shadow-soft-md">
-                        <ul className="space-y-6">
-                            <li className="library-step-item">
-                                <div className="w-10 h-10 min-w-10 min-h-10 rounded-full border border-gray-300 flex items-center justify-center font-medium text-lg">1</div>
-                                <div className="flex flex-col">
-                                    <h3 className="library-step-title text-lg font-bold">Upload PDF</h3>
-                                    <p className="library-step-description text-gray-500">Add an academic PDF</p>
-                                </div>
-                            </li>
-                            <li className="library-step-item">
-                                <div className="w-10 h-10 min-w-10 min-h-10 rounded-full border border-gray-300 flex items-center justify-center font-medium text-lg">2</div>
-                                <div className="flex flex-col">
-                                    <h3 className="library-step-title text-lg font-bold">Smart Indexing</h3>
-                                    <p className="library-step-description text-gray-500">Extract searchable text</p>
-                                </div>
-                            </li>
-                            <li className="library-step-item">
-                                <div className="w-10 h-10 min-w-10 min-h-10 rounded-full border border-gray-300 flex items-center justify-center font-medium text-lg">3</div>
-                                <div className="flex flex-col">
-                                    <h3 className="library-step-title text-lg font-bold">Voice Study</h3>
-                                    <p className="library-step-description text-gray-500">Discuss the book with AI</p>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-    )
+      <div className="dashboard-hero__aside">
+        <div className="dashboard-index-card">
+          <div className="dashboard-index-card__heading">
+            <span className="dashboard-index-card__number">{String(bookCount).padStart(2, '0')}</span>
+            <span>{isSearchResult ? 'Matching books' : 'Books in your library'}</span>
+          </div>
+          <div className="dashboard-index-card__rule" />
+          {featuredBook ? <Link href={`/books/${featuredBook.slug}`} className="dashboard-featured-book">
+            <Image src={featuredBook.coverURL || '/assets/book-cover.svg'} alt="" width={46} height={68} className="dashboard-featured-book__cover" />
+            <span>
+              <small>Most recently added</small>
+              <strong>{featuredBook.title}</strong>
+              <em>{featuredBook.author}</em>
+            </span>
+            <ArrowRight aria-hidden="true" />
+          </Link> : <div className="dashboard-empty-index">
+            <div><BookOpen aria-hidden="true" /></div>
+            <span>{isSearchResult ? 'Try another title or author.' : 'Your first book will appear here.'}</span>
+          </div>}
+        </div>
+        <div className="dashboard-hero__illustration-wrap" aria-hidden="true">
+          <Image src="/assets/hero-illustration.png" alt="" width={330} height={330} priority className="dashboard-hero__illustration" />
+          <Sparkles className="dashboard-hero__sparkle" />
+        </div>
+      </div>
+    </section>
+  );
 }
-
-export default HeroSection

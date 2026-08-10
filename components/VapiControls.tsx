@@ -1,116 +1,47 @@
 'use client';
 
-import {Mic, MicOff} from "lucide-react";
-import useVapi from "@/hooks/useVapi";
-import {IBook, Messages} from "@/types";
-import Image from "next/image";
-import Transcript from "@/components/Transcript";
-import {toast} from "sonner";
+import Image from 'next/image';
+import { Clock3, Mic, MicOff, Radio, Volume2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import useVapi from '@/hooks/useVapi';
+import type { IBook, Messages } from '@/types';
+import Transcript from '@/components/Transcript';
 
-import {useRouter} from "next/navigation";
-import {useEffect} from "react";
+const statusLabels = { idle: 'Ready to study', connecting: 'Connecting', starting: 'Starting session', listening: 'Listening', thinking: 'Thinking', speaking: 'Speaking' } as const;
 
-const VapiControls = ({ book, initialMessages = [], readOnly = false }: { book: IBook; initialMessages?: Messages[]; readOnly?: boolean }) => {
-    const { status, isActive, messages, currentMessage, currentUserMessage, duration, start, stop, clearError, limitError } = useVapi(book, initialMessages)
-    const router = useRouter();
+export default function VapiControls({ book, initialMessages = [], readOnly = false }: { book: IBook; initialMessages?: Messages[]; readOnly?: boolean }) {
+  const { status, isActive, messages, currentMessage, currentUserMessage, duration, start, stop, clearError, limitError } = useVapi(book, initialMessages);
+  const router = useRouter();
 
-    useEffect(() => {
-        if (limitError) {
-            toast.error(limitError);
-            router.push("/");
-            clearError();
-        }
-    }, [limitError, router, clearError]);
+  useEffect(() => {
+    if (limitError) {
+      toast.error(limitError);
+      router.push('/');
+      clearError();
+    }
+  }, [limitError, router, clearError]);
 
-    const formatDuration = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
+  const minutes = Math.floor(duration / 60);
+  const seconds = duration % 60;
+  const formattedDuration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  const statusLabel = statusLabels[status as keyof typeof statusLabels] ?? 'Ready to study';
 
-    const getStatusDisplay = () => {
-        switch (status) {
-            case 'connecting': return { label: 'Connecting...', color: 'vapi-status-dot-connecting' };
-            case 'starting': return { label: 'Starting...', color: 'vapi-status-dot-starting' };
-            case 'listening': return { label: 'Listening', color: 'vapi-status-dot-listening' };
-            case 'thinking': return { label: 'Thinking...', color: 'vapi-status-dot-thinking' };
-            case 'speaking': return { label: 'Speaking', color: 'vapi-status-dot-speaking' };
-            default: return { label: 'Ready', color: 'vapi-status-dot-ready' };
-        }
-    };
-
-    const statusDisplay = getStatusDisplay();
-
-    return (
-        <>
-            <div className="max-w-4xl mx-auto flex flex-col gap-8">
-                {/* Header Card */}
-                <div className="vapi-header-card">
-                    <div className="vapi-cover-wrapper">
-                        <Image
-                            src={book.coverURL || "/assets/book-cover.svg"}
-                            alt={book.title}
-                            width={120}
-                            height={180}
-                            className="vapi-cover-image !w-[120px] !h-auto"
-                            priority
-                        />
-                        <div className="vapi-mic-wrapper relative">
-                            {isActive && (status === 'speaking' || status === 'thinking') && (
-                                <div className="absolute inset-0 rounded-full bg-white animate-ping opacity-75" />
-                            )}
-                            <button
-                                onClick={isActive ? stop : start}
-                                disabled={readOnly || status === 'connecting'}
-                                className={`vapi-mic-btn shadow-md !w-[60px] !h-[60px] z-10 ${isActive ? 'vapi-mic-btn-active' : 'vapi-mic-btn-inactive'}`}
-                            >
-                                {isActive ? (
-                                    <Mic className="size-7 text-white" />
-                                ) : (
-                                    <MicOff className="size-7 text-[#212a3b]" />
-                                )}
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col gap-4 flex-1">
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#212a3b] mb-1">
-                                {book.title}
-                            </h1>
-                            <p className="text-[#3d485e] font-medium">by {book.author}</p>
-                        </div>
-
-                        <div className="flex flex-wrap gap-3">
-                            <div className="vapi-status-indicator">
-                                <span className={`vapi-status-dot ${statusDisplay.color}`} />
-                                <span className="vapi-status-text">{statusDisplay.label}</span>
-                            </div>
-
-                            <div className="vapi-status-indicator">
-                                <span className="vapi-status-text">Voice: {book.persona || "Daniel"}</span>
-                            </div>
-
-                            <div className="vapi-status-indicator">
-                                <span className="vapi-status-text">
-                                    {formatDuration(duration)}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            <div className="vapi-transcript-wrapper">
-                <div className="transcript-container min-h-[400px]">
-                    <Transcript
-                        messages={messages}
-                        currentMessage={currentMessage}
-                        currentUserMessage={currentUserMessage}
-                    />
-                </div>
-            </div>
-            </div>
-        </>
-    )
+  return <section className="voice-study">
+    <header className="voice-study__header">
+      <div className="voice-study__book-mark"><Image src={book.coverURL || '/assets/book-cover.svg'} alt="" width={76} height={114} className="voice-study__cover" /></div>
+      <div className="voice-study__intro"><p className="summary-eyebrow">Voice study session</p><h2>Talk your way through the text.</h2><p>Ask questions, test your understanding, or work through a difficult idea aloud.</p></div>
+      <button type="button" onClick={isActive ? stop : start} disabled={readOnly || status === 'connecting'} className={isActive ? 'voice-study__mic voice-study__mic--active' : 'voice-study__mic'} aria-label={isActive ? 'End voice session' : readOnly ? 'Saved transcripts are read only' : 'Start voice session'}>
+        {isActive ? <Mic aria-hidden="true" /> : <MicOff aria-hidden="true" />}<span>{isActive ? 'End session' : readOnly ? 'Saved session' : 'Start speaking'}</span>
+      </button>
+    </header>
+    <div className="voice-study__details">
+      <span className={`voice-study__status voice-study__status--${status}`}><i aria-hidden="true" />{statusLabel}</span>
+      <span><Volume2 aria-hidden="true" />{book.persona || 'Daniel'}</span>
+      <span><Clock3 aria-hidden="true" />{formattedDuration}</span>
+      {isActive ? <span><Radio aria-hidden="true" />Live session</span> : null}
+    </div>
+    <div className="voice-study__transcript"><Transcript messages={messages} currentMessage={currentMessage} currentUserMessage={currentUserMessage} /></div>
+  </section>;
 }
-export default VapiControls

@@ -1,22 +1,15 @@
 'use client';
 
-import React from 'react';
-import { Loader2 } from 'lucide-react';
+import { Check, FileText, LoaderCircle, Sparkles } from 'lucide-react';
 
-const LoadingOverlay = () => {
-    return (
-        <div className="loading-wrapper">
-            <div className="loading-shadow-wrapper bg-white shadow-soft-lg">
-                <div className="loading-shadow">
-                    <Loader2 className="loading-animation w-12 h-12 text-[#663820]" />
-                    <h2 className="loading-title">Preparing Smart Book</h2>
-                    <p className="text-[#777] text-center max-w-xs">
-                        Please wait while KitabHoshmand extracts, indexes, and prepares your PDF for voice study.
-                    </p>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-export default LoadingOverlay;
+export default function LoadingOverlay() {
+  return <div className="loading-wrapper" role="status" aria-live="polite" aria-label="Preparing your book">
+    <div className="upload-loading-card">
+      <div className="upload-loading-card__icon"><LoaderCircle className="animate-spin" aria-hidden="true" /></div>
+      <p className="summary-eyebrow">Preparing your book</p>
+      <h2>Setting up your reading room.</h2>
+      <p>We are extracting the text, creating a cover, and indexing the pages for thoughtful study.</p>
+      <div className="upload-loading-card__steps"><span><Check aria-hidden="true" />Upload source</span><span><FileText aria-hidden="true" />Read document</span><span><Sparkles aria-hidden="true" />Create companion</span></div>
+    </div>
+  </div>;
+}

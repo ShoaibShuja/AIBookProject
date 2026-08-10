@@ -4,10 +4,11 @@ import { requireUser } from '@/lib/auth';
 const Page = async () => {
     await requireUser();
     return (
-        <main className="new-book">
-            <section className="flex flex-col gap-5 text-center">
-                <h1 className="page-title-xl">Upload a Book</h1>
-                <p className="subtitle">Add a PDF to create a voice-native smart study companion</p>
+        <main className="upload-page">
+            <section className="upload-page__hero">
+                <p className="summary-eyebrow">Add to your personal library</p>
+                <h1>Bring a book into focus.</h1>
+                <p>Upload a PDF and create a private study companion built around the way you prefer to learn.</p>
             </section>
 
             <UploadForm />
