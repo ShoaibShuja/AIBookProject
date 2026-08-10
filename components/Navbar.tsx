@@ -4,12 +4,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { BookOpen, ChevronDown, LogOut, Upload } from 'lucide-react';
+import { BookOpen, ChevronDown, FileText, LogOut, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/components/AuthProvider';
 
 const navItems = [
   { label: 'Library', href: '/' },
+  { label: 'Summary', href: '/summaries' },
   { label: 'Upload', href: '/books/new' },
 ];
 
@@ -77,6 +78,7 @@ export default function Navbar() {
               </div>
               <div className="my-2 h-px bg-[#eadcc8]" />
               <Link role="menuitem" href="/" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[#4a3424] transition hover:bg-[#f7ead8]"><BookOpen className="size-4 text-[#8d5e3e]" />My library</Link>
+              <Link role="menuitem" href="/summaries" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[#4a3424] transition hover:bg-[#f7ead8]"><FileText className="size-4 text-[#8d5e3e]" />Study guides</Link>
               <Link role="menuitem" href="/books/new" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[#4a3424] transition hover:bg-[#f7ead8]"><Upload className="size-4 text-[#8d5e3e]" />Upload a book</Link>
               <div className="my-2 h-px bg-[#eadcc8]" />
               <button role="menuitem" type="button" onClick={handleSignOut} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-[#9f2d22] transition hover:bg-[#fff0eb]"><LogOut className="size-4" />Sign out</button>

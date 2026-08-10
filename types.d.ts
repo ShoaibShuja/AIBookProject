@@ -100,6 +100,11 @@ export interface SavedBookSummary {
     generatedAt: Date;
 }
 
+export interface SummaryLibraryBook {
+    book: IBook;
+    summaryGeneratedAt: Date | null;
+}
+
 export interface TextSegment {
     text: string;
     segmentIndex: number;

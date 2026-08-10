@@ -1,11 +1,12 @@
 'use server';
 
 import { z } from 'zod';
-import type { BookStudyGuide, SavedBookSummary, SummaryChapter } from '@/types';
+import type { BookStudyGuide, SavedBookSummary, SummaryChapter, SummaryLibraryBook } from '@/types';
 import { requireUser } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { generateGeminiText } from '@/lib/gemini';
 import { buildChapterSummaryPrompt, buildStudyGuidePrompt, detectSummaryChapters, type SummarySegment } from '@/lib/summary';
+import { getAllBooks } from '@/lib/actions/book.actions';
 
 type SegmentRow = SummarySegment;
 type ChapterRow = { id: string; title: string; start_segment_index: number; end_segment_index: number };
@@ -74,6 +75,16 @@ export async function getSummaryWorkspace(bookId: string): Promise<{ chapters: S
   const segments = await getSegments(supabase, bookId);
   if (chapters.length) return { chapters: withPageRanges(chapters.map(toChapter), segments), summary };
   return { chapters: withPageRanges(detectSummaryChapters(segments), segments), summary };
+}
+
+export async function getSummaryLibrary(): Promise<SummaryLibraryBook[]> {
+  await requireUser();
+  const booksResult = await getAllBooks();
+  if (!booksResult.success) return [];
+  const supabase = await createClient();
+  const { data } = await supabase.from('book_summaries').select('book_id,generated_at');
+  const generatedAt = new Map(((data ?? []) as { book_id: string; generated_at: string }[]).map((summary) => [summary.book_id, new Date(summary.generated_at)]));
+  return booksResult.data.map((book) => ({ book, summaryGeneratedAt: generatedAt.get(book.id) ?? null }));
 }
 
 export async function saveSummaryChapters(input: { bookId: string; chapters: SummaryChapter[] }) {
