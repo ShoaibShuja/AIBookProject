@@ -1,9 +1,20 @@
 import type { Metadata } from "next";
+import { Outfit, Space_Grotesk } from "next/font/google";
 import { AuthProvider } from '@/components/AuthProvider';
 import Navbar from "@/components/Navbar";
 import "./globals.css";
 import {Toaster} from "@/components/ui/sonner";
 import { getCurrentUser } from '@/lib/auth';
+
+const outfit = Outfit({
+  variable: '--font-outfit',
+  subsets: ['latin'],
+});
+
+const spaceGrotesk = Space_Grotesk({
+  variable: '--font-space-grotesk',
+  subsets: ['latin'],
+});
 
 export const metadata: Metadata = {
   title: "KitabHoshmand | Smart Book Companion",
@@ -22,7 +33,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className="relative font-sans antialiased">
+      <body className={`${outfit.variable} ${spaceGrotesk.variable} relative font-sans antialiased`}>
         <AuthProvider initialUser={user}>
             <Navbar />
             {children}
