@@ -30,8 +30,8 @@ export default function HeroSection({ bookCount, featuredBook, isSearchResult = 
             <Plus aria-hidden="true" />
             Upload a book
           </Link>
-          {featuredBook ? <Link href={`/books/${featuredBook.slug}`} className="dashboard-secondary-action">
-            Continue with {featuredBook.title}
+          {featuredBook ? <Link href={`/books/${featuredBook.slug}`} className="dashboard-secondary-action" aria-label={`Continue reading ${featuredBook.title}`}>
+            Continue reading
             <ArrowRight aria-hidden="true" />
           </Link> : null}
         </div>
@@ -57,7 +57,8 @@ export default function HeroSection({ bookCount, featuredBook, isSearchResult = 
             <span>{isSearchResult ? 'Try another title or author.' : 'Your first book will appear here.'}</span>
           </div>}
         </div>
-        <div className="dashboard-hero__illustration-wrap" aria-hidden="true">
+        <div className="dashboard-hero__illustration-frame" aria-hidden="true">
+          <span className="dashboard-hero__illustration-label">Reading room</span>
           <Image src="/assets/hero-illustration.png" alt="" width={330} height={330} priority className="dashboard-hero__illustration" />
           <Sparkles className="dashboard-hero__sparkle" />
         </div>
