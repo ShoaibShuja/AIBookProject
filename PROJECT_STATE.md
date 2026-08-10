@@ -16,7 +16,7 @@ Handoff/post-validation. Completed prompts: **1** (full Supabase migration imple
 - Replaced Clerk, MongoDB/Mongoose, Vercel Blob, and Clerk billing UI with Supabase Auth, Postgres, private Storage, RLS, and a free-only plan.
 - Added email/password sign-up, sign-in, confirmation callback, password reset, sign-out, Supabase SSR cookie refresh, and authenticated app routes.
 - Private per-user library is enforced by RLS; book ingestion/session RPCs derive the authenticated user in Postgres and atomically enforce: 1 book, 5 monthly sessions, 5 minutes/session.
-- Voice session transcripts and Gemini-backed text chats are persisted as ordered, RLS-protected per-book conversation messages. Text chat is unlimited and does not consume voice limits.
+- Voice session transcripts and GPT-5.6 Luna-backed text chats are persisted as ordered, RLS-protected per-book conversation messages. Text chat is unlimited and does not consume voice limits.
 - PDF/cover uploads go directly to private Supabase buckets under `<user-id>/<book-id>/…`; server pages issue short-lived cover URLs.
 - Vapi tool endpoint requires `Authorization: Bearer <VAPI_SEARCH_WEBHOOK_SECRET>`, validates Vapi payloads, and queries a service-role-only full-text search RPC.
 - Implemented idempotent legacy MongoDB/Vercel Blob migration plus explicit legacy Clerk-ID-to-new-Supabase-user mapping scripts. No migration data is exposed before mapping.

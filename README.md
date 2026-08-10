@@ -34,7 +34,7 @@ KitabHoshmand transforms a static PDF into an interactive study companion:
 - **PDF upload and ingestion**: validates PDF files, uploads them to private Supabase Storage, extracts text, and stores searchable segments.
 - **Smart book library**: lists uploaded books and supports title/author search.
 - **Conversation history**: saves final voice transcripts and text-chat messages in per-book sessions.
-- **Text study flow**: uses Gemini through a server-only boundary and grounds answers in private book segments.
+- **Text study flow**: uses OpenAI GPT-5.6 Luna through a server-only boundary and grounds answers in private book segments.
 - **Book-aware search tool**: Vapi can call the app API to search stored book segments.
 - **Authentication**: protected pages and authenticated uploads through Supabase email/password Auth.
 - **Free-plan limits**: one book, five monthly voice sessions, and five minutes per session.
@@ -64,9 +64,9 @@ NEXT_PUBLIC_ASSISTANT_ID=
 NEXT_PUBLIC_VAPI_API_KEY=
 VAPI_SEARCH_WEBHOOK_SECRET=
 
-# Text chat (server-only)
-GOOGLE_GEMINI_API_KEY=
-GEMINI_MODEL=gemini-2.5-flash
+# Text chat (server-only OpenAI API)
+OPENAI_API_KEY=
+OPENAI_CHAT_MODEL=gpt-5.6-luna
 ELEVENLABS_API_KEY=
 ```
 
@@ -77,7 +77,7 @@ npm install
 npm run dev
 ```
 
-Apply all SQL files in `supabase/migrations/` to a new Supabase project before starting the app. Configure Supabase Auth with email confirmation, password recovery redirects, and your local/production callback URL. Copy `.env.example` to `.env.local` and supply the Supabase, Vapi, and Gemini values.
+Apply all SQL files in `supabase/migrations/` to a new Supabase project before starting the app. Configure Supabase Auth with email confirmation, password recovery redirects, and your local/production callback URL. Copy `.env.example` to `.env.local` and supply the Supabase, Vapi, and OpenAI values.
 
 Open [http://localhost:3000](http://localhost:3000).
 
