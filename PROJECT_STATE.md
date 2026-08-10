@@ -1,61 +1,54 @@
-# Project State: Supabase Migration Complete
+# Project State: KitabHoshmand Supabase, Voice, and Chat
 
 ## Current Phase
 
-Handoff/post-validation. Completed prompts: **1** (full Supabase migration implementation) and **2** (live project configuration verification). No active feature work is in progress.
+Post-implementation validation and handoff. Text chat and saved per-book study guides use Gemini through Google AI Studio.
 
 ## Repository
 
-- Branch: `main`
-- Latest migration commit: `399d1c5` — `first commit` (contains the Supabase migration and supporting docs/assets).
-- Earlier relevant commits: `4b44713` — `Merge pull request #2 from ShoaibShuja/feature/kitabhoshmand-rebrand`; `654b87d` — `feat: rebrand app as KitabHoshmand`.
-- The worktree was clean before this state-file refresh. After this edit, only `PROJECT_STATE.md` is expected to be modified unless the user makes additional changes.
+- Branch: `main`.
+- Recent relevant commits: `153aeb8` `Merge pull request #4 from ShoaibShuja/feat/add-chat`; `a630368` `added another tab besides voice named chat`; `0022e6c` `Merge pull request #3 from ShoaibShuja/feat/supabase`; `04e1e41` `recreated the database and changed DB from mongodb to supabase`; `399d1c5` `first commit`; `654b87d` `feat: rebrand app as KitabHoshmand`.
+- Chat provider files: `lib/gemini.ts` and `tests/gemini.test.ts`.
 
 ## Completed Product Work
 
-- Replaced Clerk, MongoDB/Mongoose, Vercel Blob, and Clerk billing UI with Supabase Auth, Postgres, private Storage, RLS, and a free-only plan.
-- Added email/password sign-up, sign-in, confirmation callback, password reset, sign-out, Supabase SSR cookie refresh, and authenticated app routes.
-- Private per-user library is enforced by RLS; book ingestion/session RPCs derive the authenticated user in Postgres and atomically enforce: 1 book, 5 monthly sessions, 5 minutes/session.
-- Voice session transcripts and GPT-5.6 Luna-backed text chats are persisted as ordered, RLS-protected per-book conversation messages. Text chat is unlimited and does not consume voice limits.
-- PDF/cover uploads go directly to private Supabase buckets under `<user-id>/<book-id>/…`; server pages issue short-lived cover URLs.
-- Vapi tool endpoint requires `Authorization: Bearer <VAPI_SEARCH_WEBHOOK_SECRET>`, validates Vapi payloads, and queries a service-role-only full-text search RPC.
-- Implemented idempotent legacy MongoDB/Vercel Blob migration plus explicit legacy Clerk-ID-to-new-Supabase-user mapping scripts. No migration data is exposed before mapping.
+- Supabase Auth/Postgres/private Storage replaced Clerk, MongoDB/Mongoose, Vercel Blob, and subscription UI. Free limits remain one book, five monthly voice sessions, five minutes each.
+- Auth state now subscribes to Supabase events, sign-in forces a cookie-visible navigation, uploads re-check the current browser session, and Navbar has an accessible profile menu.
+- Books have isolated sequential text segments; server/RPC validation protects malformed input and `total_segments` consistency.
+- Voice sessions persist final Vapi transcripts. Saved voice and text conversations are listed per book; `/books/[slug]` stays voice and `/books/[slug]/chat` is text chat.
+- Text chat uses the server-only Gemini GenerateContent API with `gemini-2.5-flash`, book-segment grounding, recent history, an abort timeout, and RLS-protected persisted sessions/messages.
+- `/books/[slug]/summary` detects editable chapter ranges and generates a saved, grounded Gemini study guide through chapter summaries followed by final synthesis.
+- Vapi search supports current and legacy tool-call formats, returns matching call IDs and concise one-line passages. Direct validation found an uploaded book with 172 segments and a valid search response.
 
-## Key Files
+## Key Files and Schema
 
-- `supabase/migrations/202608090001_initial_schema.sql`: schema, RLS, buckets, indexes, triggers, and RPCs.
-- `lib/supabase/{client,server,admin,proxy}.ts`, `lib/auth.ts`, `lib/limits.ts`: Supabase integration and auth/limits.
-- `lib/actions/{book,session}.actions.ts`: RLS-aware app actions.
-- `components/{AuthForm,AuthProvider,UploadForm,Navbar}.tsx`: auth UI and storage upload flow.
-- `app/auth/callback/route.ts`, `app/{sign-in,sign-up,forgot-password,reset-password}/page.tsx`: auth routes.
-- `app/api/vapi/search-book/route.ts`: protected Vapi search.
-- `scripts/migrate-from-mongodb.mjs`, `scripts/map-legacy-users.mjs`, `docs/SUPABASE_CUTOVER.md`, `.env.example`: cutover tooling/docs.
+- `supabase/migrations/202608090001_initial_schema.sql`: original Supabase schema/RPCs.
+- `supabase/migrations/202608100001_conversation_history_and_segments.sql`: retry-safe migration adding `voice_session_messages`, `chat_sessions`, `chat_messages`, RLS/indexes, and stricter `ingest_book` validation. The `ROWS FROM (...) WITH ORDINALITY` syntax fixes its prior PostgreSQL error.
+- `supabase/migrations/202608100002_book_summaries.sql`: owner-scoped chapter outline and saved study-guide tables with RLS.
+- `lib/actions/conversation.actions.ts`, `lib/gemini.ts`, `components/ChatStudy.tsx`, `components/VoiceStudy.tsx`, `components/ConversationSidebar.tsx`, `components/BookModeTabs.tsx`: conversations and text chat.
+- `hooks/useVapi.ts`, `app/api/vapi/search-book/route.ts`: transcript persistence and Vapi tool boundary.
+- `components/AuthProvider.tsx`, `components/AuthForm.tsx`, `components/UploadForm.tsx`, `components/Navbar.tsx`: live auth state, reliable uploads, profile dropdown.
+- `tests/gemini.test.ts`, `tests/utils.test.ts`, `vitest.config.mts`, `playwright.config.ts`: current test baseline.
 
-## Database and Roles
+## Routes, Security, and Configuration
 
-- Tables: `profiles`, `books`, `book_segments`, `voice_sessions`, `legacy_user_mappings`.
-- `book_segments.search_vector` is generated and GIN-indexed; `search_book_segments` ranks FTS results then performs safe substring fallback.
-- `ingest_book`, `start_voice_session`, and `end_voice_session` are authenticated RPCs. `search_book_segments` is executable only by `service_role`.
-- `book-files` and `book-covers` are private. RLS permits access only to objects inside the calling user’s top-level folder.
-- Legacy records use `owner_id/user_id = NULL` and `legacy_clerk_id` until the mapping script assigns them.
+- Protected: `/`, `/books/new`, `/books/[slug]`, `/books/[slug]/chat`. Auth routes remain public. `/api/vapi/search-book` allows health `GET`; its `POST` requires the Vapi bearer secret.
+- RLS remains mandatory. Do not expose the service role or make storage buckets public. Vapi search is service-role-only after a constant-time bearer check; it must receive a public deployed URL, never localhost.
+- Required chat environment: `GEMINI_API_KEY` and optional `GEMINI_CHAT_MODEL=gemini-2.5-flash`. Keep existing Supabase/Vapi variables unchanged.
 
-## Runtime Routes and Architecture
+## Validation and Known Issues
 
-- Protected: `/`, `/books/new`, `/books/[slug]`; unauthenticated requests redirect to `/sign-in`.
-- Public auth: `/sign-in`, `/sign-up`, `/forgot-password`, `/reset-password`, `/auth/callback`.
-- `/api/vapi/search-book`: `GET` health check; `POST` requires the Vapi shared secret. Removed: `/subscriptions` and `/api/upload`.
-- Next.js remains the UI/SSR and trusted Vapi boundary. Supabase owns auth, persistence, storage, and authorization. Avoid restoring client-supplied owner IDs or public storage URLs.
+- Passing: `npm test` (5 tests), `npx tsc --noEmit`, `npm run build`. Lint has only the old unused `media` warning in `docs/proposal/build-proposal.mjs:113`.
+- Gemini has not yet been live-tested. Google AI Studio free-tier availability and limits are subject to the API project's quota.
+- No live Supabase RLS integration suite or authenticated Playwright suite is complete. The Playwright protected-route spec requires a running configured app/browser setup. Legacy import tooling exists but no live legacy import was run.
 
-## Environment and Validation
+## Next Recommended Prompt
 
-- Required runtime keys: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_ASSISTANT_ID`, `NEXT_PUBLIC_VAPI_API_KEY`, `VAPI_SEARCH_WEBHOOK_SECRET`.
-- Temporary migration keys: `MONGODB_URI`, optional `MONGODB_DATABASE`, `LEGACY_USER_MAPPING_FILE`.
-- Live checks on 2026-08-10 passed: configured key presence, production build, Supabase service-role query, private bucket existence, Vapi `GET` 200, authorized Vapi `POST` 200, unauthorized Vapi `POST` 401.
-- `npx tsc --noEmit` and `npm run build` pass. `npm run lint` has one pre-existing warning: unused `media` in `docs/proposal/build-proposal.mjs:113`.
+"Add GEMINI_API_KEY from Google AI Studio, then run and verify an authenticated end-to-end chat conversation against an uploaded book, including persisted session history and a grounded response. Add Supabase RLS integration tests and complete Playwright coverage without changing production schema or auth behavior."
 
-## Known Debt / Do Not Change Accidentally
+## Do Not Accidentally Change
 
-- There is no committed automated Supabase RLS/E2E suite yet; live migration data has not been run in this workspace.
-- Keep `mongodb` as a dev dependency only for the one-time migration scripts; do not re-add Mongoose or MongoDB runtime code.
-- Preserve private buckets, service-role secrecy, authenticated RPC ownership checks, Vapi constant-time secret verification, and legacy records’ unmapped privacy.
-- Do not delete MongoDB/Vercel Blob backups or legacy migration metadata until migration and account mapping are formally signed off.
+- Do not restore Clerk, Mongoose, Vercel Blob, paid plans, or `/subscriptions`.
+- Do not accept client-supplied owner IDs, expose `SUPABASE_SERVICE_ROLE_KEY`/`GEMINI_API_KEY`, bypass RLS, make buckets public, remove voice limits, or grant segment search to browser roles.
+- Do not silently change the configured Gemini model or hide actionable Gemini API errors.
+- Do not delete legacy backups/mapping metadata or auto-assign unmapped legacy books.

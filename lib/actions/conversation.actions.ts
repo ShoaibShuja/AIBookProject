@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { requireUser } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { generateBookReply } from '@/lib/openai';
+import { generateBookReply } from '@/lib/gemini';
 import type { ConversationMessage, ConversationSession } from '@/types';
 
 const messageInputSchema = z.object({ bookId: z.string().uuid(), sessionId: z.string().uuid().optional(), content: z.string().trim().min(1).max(4000) });
