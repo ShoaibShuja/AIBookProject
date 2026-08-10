@@ -37,7 +37,7 @@ KitabHoshmand transforms a static PDF into an interactive study companion:
 - **Text study flow**: uses Gemini through a server-only boundary and grounds answers in private book segments.
 - **Book-aware search tool**: Vapi can call the app API to search stored book segments.
 - **Authentication**: protected pages and authenticated uploads through Supabase email/password Auth.
-- **Free-plan limits**: one book, five monthly voice sessions, and five minutes per session.
+- **Voice-plan limits**: five monthly voice sessions and five minutes per session. Book uploads are currently unlimited.
 
 ## Routes
 

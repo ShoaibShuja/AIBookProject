@@ -12,7 +12,7 @@ Post-implementation validation and handoff. Text chat and saved per-book study g
 
 ## Completed Product Work
 
-- Supabase Auth/Postgres/private Storage replaced Clerk, MongoDB/Mongoose, Vercel Blob, and subscription UI. Free limits remain one book, five monthly voice sessions, five minutes each.
+- Supabase Auth/Postgres/private Storage replaced Clerk, MongoDB/Mongoose, Vercel Blob, and subscription UI. Book uploads are unlimited; voice limits remain five monthly sessions and five minutes each.
 - Auth state now subscribes to Supabase events, sign-in forces a cookie-visible navigation, uploads re-check the current browser session, and Navbar has an accessible profile menu.
 - Books have isolated sequential text segments; server/RPC validation protects malformed input and `total_segments` consistency.
 - Voice sessions persist final Vapi transcripts. Saved voice and text conversations are listed per book; `/books/[slug]` stays voice and `/books/[slug]/chat` is text chat.

@@ -124,12 +124,7 @@ export async function ingestBook(input: CreateBook) {
     })),
   });
 
-  if (error) {
-    const message = error.message.includes('BOOK_LIMIT_REACHED')
-      ? 'You have reached the free-plan limit of one book.'
-      : 'Unable to save this book. Please try again.';
-    return { success: false, error: message, code: error.message };
-  }
+  if (error) return { success: false, error: 'Unable to save this book. Please try again.', code: error.message };
 
   const result = (data as { status: string; book_id: string; book_slug: string }[] | null)?.[0];
   if (!result) return { success: false, error: 'Unable to save this book.' };
