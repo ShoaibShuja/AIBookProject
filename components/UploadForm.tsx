@@ -103,7 +103,7 @@ export default function UploadForm() {
       <aside className="upload-form-aside">
         <p className="summary-eyebrow">A private reading practice</p>
         <h2>What happens next</h2>
-        <ol><li><span>01</span><div><strong>We read the document</strong><p>Your PDF is prepared for meaningful questions and search.</p></div></li><li><span>02</span><div><strong>We build your companion</strong><p>Your selected voice is ready to discuss the text with you.</p></div></li><li><span>03</span><div><strong>You choose how to study</strong><p>Talk, chat, or create a guide whenever it suits you.</p></div></li></ol>
+        <ol><li><span>01</span><div><strong>We read the document</strong><p>Your PDF is prepared for meaningful questions and search.</p></div></li><li><span>02</span><div><strong>We build your companion</strong><p>Your selected voice is ready to discuss the text with you.</p></div></li><li><span>03</span><div><strong>You choose how to study</strong><p>Talk or create a guide whenever it suits you.</p></div></li></ol>
       </aside>
     </div>
   </>;

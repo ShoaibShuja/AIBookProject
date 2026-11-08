@@ -45,8 +45,6 @@ KitabHoshmand transforms a static PDF into an interactive study companion:
 - `/books/new`: PDF upload and assistant voice selection.
 - `/books/[slug]`: protected voice study page for one book.
 - `/books/[slug]/chat`: protected text-chat study page for one book.
-- `/books/[slug]/summary`: protected saved Gemini study guide for one book.
-- `/summaries`: protected summary library listing every book and its study-guide status.
 - `/api/vapi/search-book`: Vapi tool endpoint for searching book segments.
 
 ## Environment Variables

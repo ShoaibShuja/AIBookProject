@@ -13,7 +13,7 @@ const copy: Record<AuthMode, { eyebrow: string; title: string; description: stri
   'sign-in': {
     eyebrow: 'Your reading room',
     title: 'Welcome back.',
-    description: 'Continue your conversations, notes, and study guides.',
+    description: 'Continue your conversations and notes.',
     submit: 'Sign in',
   },
   'sign-up': {

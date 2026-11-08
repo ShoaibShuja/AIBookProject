@@ -4,14 +4,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { BookOpen, ChevronDown, FileText, LibraryBig, LogOut, Menu, Upload, X } from 'lucide-react';
+import { BookOpen, ChevronDown, LibraryBig, LogOut, Menu, Upload, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/components/AuthProvider';
 
-const navItems = [
-  { label: 'Library', href: '/', icon: LibraryBig },
-  { label: 'Study guides', href: '/summaries', icon: FileText },
-];
+const navItems = [{ label: 'Library', href: '/', icon: LibraryBig }];
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -80,7 +77,6 @@ export default function Navbar() {
               <div className="app-profile-menu__identity"><span className="app-nav__avatar">{initials}</span><div><p>Personal library</p><strong>{email}</strong></div></div>
               <div className="app-profile-menu__rule" />
               <Link role="menuitem" href="/" onClick={() => setIsProfileOpen(false)}><BookOpen aria-hidden="true" />My library</Link>
-              <Link role="menuitem" href="/summaries" onClick={() => setIsProfileOpen(false)}><FileText aria-hidden="true" />Study guides</Link>
               <Link role="menuitem" href="/books/new" onClick={() => setIsProfileOpen(false)}><Upload aria-hidden="true" />Upload a book</Link>
               <div className="app-profile-menu__rule" />
               <button role="menuitem" type="button" onClick={handleSignOut}><LogOut aria-hidden="true" />Sign out</button>

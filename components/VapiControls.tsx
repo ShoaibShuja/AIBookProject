@@ -30,7 +30,7 @@ export default function VapiControls({ book, initialMessages = [], readOnly = fa
 
   return <section className="voice-study">
     <header className="voice-study__header">
-      <div className="voice-study__book-mark"><Image src={book.coverURL || '/assets/book-cover.svg'} alt="" width={76} height={114} className="voice-study__cover" /></div>
+      <div className="voice-study__book-mark"><Image src={book.coverURL || '/assets/book-cover.svg'} alt="" width={76} height={114} className="voice-study__cover" unoptimized={Boolean(book.coverURL)} /></div>
       <div className="voice-study__intro"><p className="summary-eyebrow">Voice study session</p><h2>Talk your way through the text.</h2><p>Ask questions, test your understanding, or work through a difficult idea aloud.</p></div>
       <button type="button" onClick={isActive ? stop : start} disabled={readOnly || status === 'connecting'} className={isActive ? 'voice-study__mic voice-study__mic--active' : 'voice-study__mic'} aria-label={isActive ? 'End voice session' : readOnly ? 'Saved transcripts are read only' : 'Start voice session'}>
         {isActive ? <Mic aria-hidden="true" /> : <MicOff aria-hidden="true" />}<span>{isActive ? 'End session' : readOnly ? 'Saved session' : 'Start speaking'}</span>

@@ -3,7 +3,6 @@ import { getBookBySlug } from "@/lib/actions/book.actions";
 import { requireUser } from '@/lib/auth';
 import { getVoiceConversationHistory } from '@/lib/actions/conversation.actions';
 import VoiceStudy from '@/components/VoiceStudy';
-import BookModeTabs from '@/components/BookModeTabs';
 import BookWorkspaceHeader from '@/components/BookWorkspaceHeader';
 
 export default async function BookDetailsPage({
@@ -26,7 +25,6 @@ export default async function BookDetailsPage({
   return (
     <div className="book-page-container">
       <BookWorkspaceHeader book={book} />
-      <BookModeTabs slug={book.slug} active="voice" />
       <VoiceStudy book={book} sessions={sessions} />
     </div>
   );

@@ -45,7 +45,7 @@ export default function HeroSection({ bookCount, featuredBook, isSearchResult = 
           </div>
           <div className="dashboard-index-card__rule" />
           {featuredBook ? <Link href={`/books/${featuredBook.slug}`} className="dashboard-featured-book">
-            <Image src={featuredBook.coverURL || '/assets/book-cover.svg'} alt="" width={46} height={68} className="dashboard-featured-book__cover" />
+            <Image src={featuredBook.coverURL || '/assets/book-cover.svg'} alt="" width={46} height={68} className="dashboard-featured-book__cover" unoptimized={Boolean(featuredBook.coverURL)} />
             <span>
               <small>Most recently added</small>
               <strong>{featuredBook.title}</strong>

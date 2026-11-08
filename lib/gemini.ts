@@ -56,20 +56,3 @@ export async function generateGeminiText({ systemInstruction, contents, maxOutpu
     clearTimeout(timeout);
   }
 }
-
-export async function generateBookReply({
-  question,
-  history,
-  grounding,
-}: {
-  question: string;
-  history: { role: 'user' | 'assistant'; content: string }[];
-  grounding: string;
-  safetyIdentifier: string;
-}) {
-  return generateGeminiText({
-    systemInstruction: `You are a helpful study companion. Answer only from the supplied book excerpts. If the excerpts do not support an answer, say so plainly. Do not invent citations or facts.\n\nBook excerpts:\n${grounding || 'No relevant excerpts were found.'}`,
-    contents: [...history.slice(-10).map((message) => ({ role: message.role === 'assistant' ? 'model' as const : 'user' as const, text: message.content })), { role: 'user', text: question }],
-    maxOutputTokens: 700,
-  });
-}
